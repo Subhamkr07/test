@@ -1235,17 +1235,26 @@
                     headers['Authorization'] = `Bearer ${currentModel.apiKey}`;
                     headers['HTTP-Referer'] = 'https://shubham-gpt.web.app/'; // Replace with your actual site URL
                     headers['X-Title'] = 'Shubham GPT'; // Replace with your site title
+
                     payload = {
                         model: currentModel.modelName,
                         messages: formattedChatHistory.map(msg => ({
-                            role: msg.role === 'model' ? 'assistant' : msg.role, // OpenRouter expects 'assistant' for bot
+                            // Map 'model' role to 'assistant' for OpenRouter
+                            role: msg.role === 'model' ? 'assistant' : msg.role,
                             content: msg.parts // This will now correctly be [{ type: "text", text: "..." }]
                         }))
                     };
+                    console.log('OpenRouter API Request:');
+                    console.log('URL:', apiUrl);
+                    console.log('Headers:', headers);
+                    console.log('Payload:', JSON.stringify(payload, null, 2)); // Pretty print payload
                 } else {
                     // Google Gemini API structure (default)
                     apiUrl += currentModel.apiKey; // Append API key for Gemini Flash
                     payload = { contents: formattedChatHistory };
+                    console.log('Gemini Flash API Request:');
+                    console.log('URL:', apiUrl);
+                    console.log('Payload:', JSON.stringify(payload, null, 2)); // Pretty print payload
                 }
 
                 const response = await fetch(apiUrl, {
