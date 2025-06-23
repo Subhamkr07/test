@@ -1239,7 +1239,7 @@
                         model: currentModel.modelName,
                         messages: formattedChatHistory.map(msg => ({
                             role: msg.role === 'model' ? 'assistant' : msg.role, // OpenRouter expects 'assistant' for bot
-                            content: msg.parts[0].text // Assuming text-only for now
+                            content: msg.parts // Use the existing 'parts' array as 'content'
                         }))
                     };
                 } else {
