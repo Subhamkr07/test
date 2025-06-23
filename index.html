@@ -612,6 +612,7 @@
                             <div class="model-dropdown-item" data-model-id="deepseek-r1">DeepSeek: R1</div>
                             <div class="model-dropdown-item" data-model-id="meta-llama-3-3">Meta: Llama 3.3</div>
                             <div class="model-dropdown-item" data-model-id="qwen3">Qwen3</div>
+                            <div class="model-dropdown-item" data-model-id="deepseek-v3">DeepSeek V3</div>
                         </div>
                     </div>
                 </div>
@@ -807,7 +808,7 @@
             'deepseek-r1': {
                 name: 'DeepSeek: R1',
                 url: "https://openrouter.ai/api/v1/chat/completions",
-                apiKey: "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", // NEW API Key
+                apiKey: "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",
                 authRequired: true,
                 openRouter: true,
                 modelName: "deepseek/deepseek-r1-0528:free"
@@ -827,6 +828,14 @@
                 authRequired: true,
                 openRouter: true,
                 modelName: "qwen/qwen3-235b-a22b:free"
+            },
+            'deepseek-v3': {
+                name: 'DeepSeek V3',
+                url: "https://openrouter.ai/api/v1/chat/completions",
+                apiKey: "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",
+                authRequired: true,
+                openRouter: true,
+                modelName: "deepseek/deepseek-chat-v3-0324:free"
             }
         };
 
@@ -1443,4 +1452,3 @@
     </script>
 </body>
 </html>
-
