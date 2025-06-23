@@ -609,9 +609,9 @@
                         <!-- Model Selection Dropdown -->
                         <div id="modelDropdown" class="model-dropdown">
                             <div class="model-dropdown-item selected" data-model-id="gemini-flash">Gemini 2.0 Flash (Default)</div>
-                            <div class="model-dropdown-item" data-model-id="gemini-2.5-pro">Google Gemini 2.5 Pro</div>
-                            <div class="model-dropdown-item" data-model-id="chatgpt-4.1">ChatGPT 4.1</div>
-                            <div class="model-dropdown-item" data-model-id="claude-sonnet-4">Claude Sonnet 4</div>
+                            <div class="model-dropdown-item" data-model-id="deepseek-r1">DeepSeek: R1</div>
+                            <div class="model-dropdown-item" data-model-id="meta-llama-3-3">Meta: Llama 3.3</div>
+                            <div class="model-dropdown-item" data-model-id="qwen3">Qwen3</div>
                         </div>
                     </div>
                 </div>
@@ -805,29 +805,29 @@
                 authRequired: false,
                 openRouter: false
             },
-            'gemini-2.5-pro': {
-                name: 'Google Gemini 2.5 Pro',
+            'deepseek-r1': {
+                name: 'DeepSeek: R1',
                 url: "https://openrouter.ai/api/v1/chat/completions",
-                apiKey: "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",
+                apiKey: "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",
                 authRequired: true,
                 openRouter: true,
-                modelName: "google/gemini-2.5-pro"
+                modelName: "deepseek/deepseek-r1-0528:free"
             },
-            'chatgpt-4.1': {
-                name: 'ChatGPT 4.1',
+            'meta-llama-3-3': {
+                name: 'Meta: Llama 3.3',
                 url: "https://openrouter.ai/api/v1/chat/completions",
-                apiKey: "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",
+                apiKey: "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",
                 authRequired: true,
                 openRouter: true,
-                modelName: "openai/gpt-4.1"
+                modelName: "meta-llama/llama-3.3-70b-instruct:free"
             },
-            'claude-sonnet-4': {
-                name: 'Claude Sonnet 4',
+            'qwen3': {
+                name: 'Qwen3',
                 url: "https://openrouter.ai/api/v1/chat/completions",
-                apiKey: "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",
+                apiKey: "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",
                 authRequired: true,
                 openRouter: true,
-                modelName: "anthropic/claude-sonnet-4"
+                modelName: "qwen/qwen3-235b-a22b:free"
             }
         };
 
@@ -1222,13 +1222,31 @@
                 let payload = {};
                 let headers = { 'Content-Type': 'application/json' };
 
-                // Prepare chat history for LLM API call (session-based only)
-                const formattedChatHistory = chatHistory.map(msg => ({
-                    role: msg.sender === 'user' ? 'user' : 'model',
-                    parts: [{ type: "text", text: msg.rawMessage || msg.user }] // Added type: "text"
-                }));
-                // Add the current user's prompt as the last message for context
-                formattedChatHistory.push({ role: "user", parts: [{ type: "text", text: prompt }] }); // Added type: "text"
+                // Prepare chat history based on the model type
+                let messagesForApi = [];
+
+                // Add existing chat history
+                chatHistory.forEach(msg => {
+                    if (currentModel.openRouter) {
+                        messagesForApi.push({
+                            role: msg.sender === 'user' ? 'user' : 'assistant', // OpenRouter expects 'assistant' for bot
+                            content: msg.rawMessage // Content is a plain string for OpenRouter
+                        });
+                    } else {
+                        messagesForApi.push({
+                            role: msg.sender === 'user' ? 'user' : 'model', // Gemini API expects 'model' for bot
+                            parts: [{ text: msg.rawMessage || msg.user }] // Gemini does not use 'type' for text parts
+                        });
+                    }
+                });
+
+                // Add the current user's prompt
+                if (currentModel.openRouter) {
+                    messagesForApi.push({ role: "user", content: prompt });
+                } else {
+                    messagesForApi.push({ role: "user", parts: [{ text: prompt }] });
+                }
+
 
                 if (currentModel.openRouter) {
                     // OpenRouter API structure
@@ -1238,11 +1256,7 @@
 
                     payload = {
                         model: currentModel.modelName,
-                        messages: formattedChatHistory.map(msg => ({
-                            // Map 'model' role to 'assistant' for OpenRouter
-                            role: msg.role === 'model' ? 'assistant' : msg.role,
-                            content: msg.parts // This will now correctly be [{ type: "text", text: "..." }]
-                        }))
+                        messages: messagesForApi
                     };
                     console.log('OpenRouter API Request:');
                     console.log('URL:', apiUrl);
@@ -1251,7 +1265,7 @@
                 } else {
                     // Google Gemini API structure (default)
                     apiUrl += currentModel.apiKey; // Append API key for Gemini Flash
-                    payload = { contents: formattedChatHistory };
+                    payload = { contents: messagesForApi };
                     console.log('Gemini Flash API Request:');
                     console.log('URL:', apiUrl);
                     console.log('Payload:', JSON.stringify(payload, null, 2)); // Pretty print payload
