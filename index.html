@@ -1224,11 +1224,11 @@
 
                 // Prepare chat history for LLM API call (session-based only)
                 const formattedChatHistory = chatHistory.map(msg => ({
-                    role: msg.sender === 'user' ? 'user' : 'model', // Gemini API expects 'model' for bot
-                    parts: [{ text: msg.rawMessage || msg.user }] // Use raw message for bot, user for user
+                    role: msg.sender === 'user' ? 'user' : 'model',
+                    parts: [{ type: "text", text: msg.rawMessage || msg.user }] // Added type: "text"
                 }));
                 // Add the current user's prompt as the last message for context
-                formattedChatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                formattedChatHistory.push({ role: "user", parts: [{ type: "text", text: prompt }] }); // Added type: "text"
 
                 if (currentModel.openRouter) {
                     // OpenRouter API structure
@@ -1239,7 +1239,7 @@
                         model: currentModel.modelName,
                         messages: formattedChatHistory.map(msg => ({
                             role: msg.role === 'model' ? 'assistant' : msg.role, // OpenRouter expects 'assistant' for bot
-                            content: msg.parts // Use the existing 'parts' array as 'content'
+                            content: msg.parts // This will now correctly be [{ type: "text", text: "..." }]
                         }))
                     };
                 } else {
@@ -1263,8 +1263,9 @@
                         botRawResponseText = result.choices[0].message.content;
                     } else if (response.status === 429) {
                         botRawResponseText = 'Too many requests. Please wait a moment and try again.';
-                    } else if (!signal.aborted) {
+                    } else {
                         console.error('Unexpected OpenRouter API response structure:', result);
+                        botRawResponseText = `Error from ${currentModel.name}: ${JSON.stringify(result)}`; // More specific error
                     }
                 } else {
                     // Gemini Flash API structure
@@ -1274,8 +1275,9 @@
                         botRawResponseText = result.candidates[0].content.parts[0].text;
                     } else if (response.status === 429) {
                         botRawResponseText = 'Too many requests. Please wait a moment and try again.';
-                    } else if (!signal.aborted) {
+                    } else {
                         console.error('Unexpected Gemini API response structure:', result);
+                        botRawResponseText = `Error from ${currentModel.name}: ${JSON.stringify(result)}`; // More specific error
                     }
                 }
 
