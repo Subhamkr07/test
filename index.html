@@ -849,7 +849,7 @@
                 // IMPORTANT: This API key must be a GitHub Personal Access Token (PAT)
                 // with sufficient permissions to access GitHub's inference models.
                 // Generate your PAT here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
-                apiKey: "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", // Updated API Key
+                apiKey: "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", // Updated API Key
                 authRequired: true,
                 openRouter: false, // Not an OpenRouter model
                 githubApi: true,   // Flag for GitHub's inference API
@@ -1061,6 +1061,8 @@
                         'expired-callback': () => {
                             showLoginError('reCAPTCHA expired. Please try again.');
                         }
+                        // Explicitly set `hl` for language if needed for localization
+                        // 'hl': 'en', // For English
                     });
                 }
             }
