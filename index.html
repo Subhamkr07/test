@@ -849,7 +849,7 @@
                 // IMPORTANT: This API key must be a GitHub Personal Access Token (PAT)
                 // with sufficient permissions to access GitHub's inference models.
                 // Generate your PAT here: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
-                apiKey: "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",
+                apiKey: "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", // Updated API Key
                 authRequired: true,
                 openRouter: false, // Not an OpenRouter model
                 githubApi: true,   // Flag for GitHub's inference API
@@ -1295,9 +1295,12 @@
                         model: currentModel.modelName,
                         messages: messagesForApi,
                         temperature: 1, // As per provided snippet
-                        max_tokens: 4096, // As per provided snippet
                         top_p: 1 // As per provided snippet
                     };
+                    // Only add max_tokens if it's explicitly available for the model and not undefined
+                    if (currentModel.max_tokens) {
+                        payload.max_tokens = currentModel.max_tokens;
+                    }
                     console.log('GitHub API Request (OpenAI GPT-4.1-mini):');
                     console.log('URL:', apiUrl);
                     console.log('Headers:', headers);
