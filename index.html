@@ -3,285 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shubham movie</title>
+    <title>Movie Hub</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #1a202c; /* Dark background */
-            color: #e2e8f0; /* Light text color */
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            color: #e2e8f0; /* Light text */
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
+        /* Custom styles for the search form */
+        .search-form-container {
+            clear: both;
+            border-bottom: 1px dotted #4a5568; /* Darker dotted border */
+            padding: 10px;
+            text-align: left;
+            margin-bottom: 20px;
         }
-        .movie-player-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
-            border-radius: 0.75rem; /* Rounded corners */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .search-input {
+            width: 70%;
+            padding: 10px;
+            border-radius: 8px; /* Rounded corners */
+            border: 1px solid #4a5568;
+            background-color: #2d3748; /* Darker input background */
+            color: #e2e8f0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6); /* Inner shadow */
         }
-        .movie-player-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
+        .search-button {
+            padding: 10px 15px;
+            border-radius: 8px; /* Rounded corners */
+            background-color: #63b3ed; /* Blue button */
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4); /* Button shadow */
+        }
+        .search-button:hover {
+            background-color: #4299e1; /* Darker blue on hover */
         }
         .movie-card {
-            background-color: #2d3748; /* Darker gray for cards */
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            text-align: center;
-            transition: transform 0.2s ease-in-out;
+            background-color: #2d3748;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
         }
         .movie-card:hover {
             transform: translateY(-5px);
         }
-        .movie-card img {
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
+        .movie-image {
+            width: 100%;
+            height: 250px; /* Fixed height for consistency */
+            object-fit: cover;
         }
-        /* Initially hide search and specific player sections */
-        #moviePlayerSection, #movieSearchSection, #webSeriesSearchSection {
-            display: none;
+        .movie-title {
+            font-weight: 600;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .movie-description {
+            font-size: 0.9rem;
+            color: #a0aec0;
         }
     </style>
 </head>
-<body class="antialiased">
-    <header class="bg-gray-800 py-4 shadow-lg">
-        <div class="container flex flex-col sm:flex-row justify-between items-center">
-            <h1 class="text-3xl font-bold text-white mb-2 sm:mb-0">
-                Shubham movie
-            </h1>
+<body class="min-h-screen flex flex-col">
+    <header class="bg-gray-800 p-6 shadow-lg rounded-b-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-4xl font-bold text-blue-400">Movie Hub</h1>
             <nav>
-                <ul class="flex space-x-4">
-                    <li><a href="#" id="navAllMovies" class="text-gray-300 hover:text-white transition duration-300">होम</a></li>
-                    <li><a href="#" id="navMoviesSearch" class="text-gray-300 hover:text-white transition duration-300">मूवीज</a></li>
-                    <li><a href="#" id="navWebSeriesSearch" class="text-gray-300 hover:text-white transition duration-300">वेब सीरीज</a></li>
+                <ul class="flex space-x-6">
+                    <li><a href="#" class="text-lg text-gray-300 hover:text-blue-300 transition duration-300">Home</a></li>
+                    <li><a href="#" class="text-lg text-gray-300 hover:text-blue-300 transition duration-300">Movies</a></li>
+                    <li><a href="#" class="text-lg text-gray-300 hover:text-blue-300 transition duration-300">TV Shows</a></li>
+                    <li><a href="#" class="text-lg text-gray-300 hover:text-blue-300 transition duration-300">Genres</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <main class="flex-grow py-8">
-        <div class="container">
-            <section id="allMoviesSection" class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                <h3 class="text-2xl font-semibold text-white mb-6 text-center">सभी फिल्में</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
-                    <div class="movie-card">
-                        <img src="https://placehold.co/300x450/800080/ffffff?text=Bhool+Bhulaiyaa+3" alt="Bhool Bhulaiyaa 3 Poster" class="w-full h-auto rounded-lg mx-auto">
-                        <h4 class="text-xl font-semibold text-white mt-2">भूल भुलैया 3</h4>
-                        <p class="text-gray-400 text-sm">शैली: हॉरर, कॉमेडी</p>
-                        <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition duration-300" data-movie-id="bhoolBhulaiyaa3">देखें</button>
-                    </div>
+    <main class="container mx-auto p-8 flex-grow">
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold mb-6 text-center text-blue-300">Search and Play Movies</h2>
+            <div class="flex justify-center">
+                <form id="movieSearchForm" action="https://player4u.xyz/embed" method="GET" class="search-form-container w-full max-w-2xl rounded-lg">
+                    <input name="key" id="movieSearchInput" type="search" placeholder="Search and play movie..." required="" class="search-input mr-2">
+                    <button type="submit" class="search-button">Search</button>
+                </form>
+            </div>
+        </section>
 
-                    <div class="movie-card">
-                        <img src="https://placehold.co/300x450/4CAF50/ffffff?text=Mrs." alt="Mrs. Movie Poster" class="w-full h-auto rounded-lg mx-auto">
-                        <h4 class="text-xl font-semibold text-white mt-2">मिसेज</h4>
-                        <p class="text-gray-400 text-sm">शैली: ड्रामा</p>
-                        <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition duration-300" data-movie-id="mrs">देखें</button>
-                    </div>
-                </div>
-            </section>
-
-            <section id="moviePlayerSection" class="mb-8">
-                <button id="backToAllMoviesBtn" class="mb-4 px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-full transition duration-300">
-                    &larr; सभी फिल्में देखें
-                </button>
-                <h2 id="moviePlayerTitle" class="text-4xl font-extrabold text-center text-white mb-6"></h2>
-                <div class="movie-player-container">
-                    <iframe id="movieIframe" src="" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen></iframe>
-                </div>
-                <div id="movieAboutSection" class="mt-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-semibold text-white mb-4">फिल्म के बारे में</h3>
-                    <p id="movieAboutContent" class="text-gray-300 leading-relaxed"></p>
-                </div>
-            </section>
-
-            <section id="movieSearchSection" class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-extrabold text-white mb-6 text-center">मूवी खोजें</h2>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-                    <input type="text" id="movieIdInput" class="form-control text-center form-control-lg bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500 flex-grow" placeholder="IMDb या TMDB ID (उदा. tt1234567)" name="id">
-                    <button id="searchMovieBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300">खोजें</button>
-                </div>
-                <div id="customMovieEmbedContainer" class="movie-player-container mt-6" style="display: none;">
-                    <iframe id="customMovieIframe" src="" allow="autoplay; fullscreen" allowfullscreen="yes" frameborder="no" scrolling="no" style="width: 100%; height: 100%; overflow: hidden;"></iframe>
-                </div>
-                <p id="movieEmbedInstructions" class="text-gray-400 mt-4 text-center">आईडी (जैसे 'tt' से शुरू होने वाली IMDb ID या TMDB ID) दर्ज करें और मूवी देखने के लिए 'खोजें' पर क्लिक करें।</p>
-            </section>
-
-            <section id="webSeriesSearchSection" class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-extrabold text-white mb-6 text-center">वेब सीरीज खोजें</h2>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-                    <input type="text" id="webSeriesIdInput" class="form-control text-center form-control-lg bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500 flex-grow" placeholder="IMDb या TMDB ID (उदा. tt18382028)" name="id">
-                    <button id="searchWebSeriesBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300">खोजें</button>
-                </div>
-                <div id="customWebSeriesEmbedContainer" class="movie-player-container mt-6" style="display: none;">
-                    <iframe id="customWebSeriesIframe" src="" allow="autoplay; fullscreen" allowfullscreen="yes" frameborder="no" scrolling="no" style="width: 100%; height: 100%; overflow: hidden;"></iframe>
-                </div>
-                <p id="webSeriesEmbedInstructions" class="text-gray-400 mt-4 text-center">आईडी (जैसे 'tt' से शुरू होने वाली IMDb ID या TMDB ID) दर्ज करें और वेब सीरीज देखने के लिए 'खोजें' पर क्लिक करें।</p>
-            </section>
-        </div>
+        <section>
+            <h2 class="text-3xl font-semibold mb-6 text-blue-300">Featured Movies</h2>
+            <div id="featuredMovies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <!-- Movie cards will be injected here by JavaScript -->
+            </div>
+        </section>
     </main>
 
-    <footer class="bg-gray-900 py-6 mt-auto shadow-inner">
-        <div class="container text-center text-gray-400">
-            <p>&copy; 2025 Shubham movie Fan Page. All rights reserved.</p>
-            <p class="mt-2 text-sm text-red-300">
-                **महत्वपूर्ण अस्वीकरण:** इस वेबसाइट पर एम्बेड किए गए वीडियो बाहरी तृतीय-पक्ष स्रोतों से आते हैं। हम किसी भी वीडियो की मेजबानी नहीं करते हैं और न ही किसी भी सामग्री के मालिक हैं। सामग्री की उपलब्धता और कानूनी अनुपालन के लिए स्रोत प्रदाता जिम्मेदार हैं। कृपया सुनिश्चित करें कि आप ऐसी सामग्री को देखने के लिए कानूनी रूप से अधिकृत हैं।
-            </p>
-        </div>
+    <footer class="bg-gray-800 p-6 text-center text-gray-400 rounded-t-xl mt-8">
+        <p>&copy; 2025 Movie Hub. All rights reserved.</p>
     </footer>
 
     <script>
+        // JavaScript to handle the form submission and dynamic content
         document.addEventListener('DOMContentLoaded', () => {
-            // Main content sections
-            const allMoviesSection = document.getElementById('allMoviesSection');
-            const moviePlayerSection = document.getElementById('moviePlayerSection');
-            const movieSearchSection = document.getElementById('movieSearchSection');
-            const webSeriesSearchSection = document.getElementById('webSeriesSearchSection');
+            const movieSearchForm = document.getElementById('movieSearchForm');
+            const movieSearchInput = document.getElementById('movieSearchInput');
+            const featuredMoviesContainer = document.getElementById('featuredMovies');
 
-            // Navigation buttons
-            const navAllMovies = document.getElementById('navAllMovies');
-            const navMoviesSearch = document.getElementById('navMoviesSearch');
-            const navWebSeriesSearch = document.getElementById('navWebSeriesSearch');
+            // Handle form submission to ensure 'xx' is replaced
+            movieSearchForm.addEventListener('submit', (event) => {
+                // The 'name="key"' attribute on the input already handles sending the value
+                // to 'player4u.xyz/embed?key=MOVIE_NAME'.
+                // No explicit JavaScript modification of the action URL is needed here,
+                // as the browser handles the form submission correctly.
+                console.log('Searching for:', movieSearchInput.value);
+            });
 
-            // Elements for pre-defined movie player
-            const movieIframe = document.getElementById('movieIframe');
-            const moviePlayerTitle = document.getElementById('moviePlayerTitle');
-            const movieAboutContent = document.getElementById('movieAboutContent');
-            const backToAllMoviesBtn = document.getElementById('backToAllMoviesBtn'); // Renamed for clarity
-
-            // Elements for custom Movie Search
-            const movieIdInput = document.getElementById('movieIdInput');
-            const searchMovieBtn = document.getElementById('searchMovieBtn');
-            const customMovieEmbedContainer = document.getElementById('customMovieEmbedContainer');
-            const customMovieIframe = document.getElementById('customMovieIframe');
-
-            // Elements for custom Web Series Search
-            const webSeriesIdInput = document.getElementById('webSeriesIdInput');
-            const searchWebSeriesBtn = document.getElementById('searchWebSeriesBtn');
-            const customWebSeriesEmbedContainer = document.getElementById('customWebSeriesEmbedContainer');
-            const customWebSeriesIframe = document.getElementById('customWebSeriesIframe');
-
-            // Define pre-defined movie data
-            const moviesData = {
-                bhoolBhulaiyaa3: {
-                    title: 'भूल भुलैया 3 देखें!',
-                    iframeSrc: 'https://www.2embed.cc/embed/tt26932223',
-                    about: `भूल भुलैया 3 लोकप्रिय हॉरर-कॉमेडी फ्रेंचाइजी की बहुप्रतीक्षित तीसरी किस्त है। अनीस बज्मी द्वारा निर्देशित, यह फिल्म अपने पूर्ववर्तियों की विरासत का पालन करते हुए, रोंगटे खड़े कर देने वाले पलों और प्रफुल्लित करने वाली कॉमेडी का मिश्रण प्रदान करने का वादा करती है। एक शानदार कलाकारों और एक दिलचस्प कथानक के साथ, यह फिल्म एक ब्लॉकबस्टर बनने वाली है। अधिक रहस्य, हंसी और डरावने दृश्यों के लिए तैयार हो जाइए!
-                            <br><br>
-                            कार्तिक आर्यन, विद्या बालन और तृप्ति डिमरी अभिनीत, यह फिल्म नई ट्विस्ट और टर्न के साथ कहानी को जारी रखती है, जिसमें प्रिय पात्रों को वापस लाया गया है और नए पात्रों को पेश किया गया है। रोमांच से न चूकें!`
+            // Dummy data for featured movies
+            const movies = [
+                {
+                    title: "The Great Adventure",
+                    description: "An epic journey through mystical lands.",
+                    imageUrl: "https://placehold.co/400x250/334155/cbd5e1?text=Movie+1"
                 },
-                mrs: {
-                    title: 'मिसेज देखें!',
-                    iframeSrc: 'https://www.2embed.cc/embed/tt27032419',
-                    about: `मिसेज एक मार्मिक ड्रामा फिल्म है जो एक महिला के जीवन के उतार-चढ़ाव को दर्शाती है। यह फिल्म समाज में एक महिला की भूमिका और उसके संघर्षों पर प्रकाश डालती है। सशक्त अभिनय और एक दमदार कहानी के साथ, यह फिल्म दर्शकों को भावुक कर देगी।`
+                {
+                    title: "City of Shadows",
+                    description: "A detective's quest in a neon-lit metropolis.",
+                    imageUrl: "https://placehold.co/400x250/334155/cbd5e1?text=Movie+2"
+                },
+                {
+                    title: "Starfall",
+                    description: "Humanity's last hope against an alien invasion.",
+                    imageUrl: "https://placehold.co/400x250/334155/cbd5e1?text=Movie+3"
+                },
+                {
+                    title: "Whispers in the Wind",
+                    description: "A heartwarming tale of friendship and discovery.",
+                    imageUrl: "https://placehold.co/400x250/334155/cbd5e1?text=Movie+4"
+                },
+                {
+                    title: "The Ancient Scroll",
+                    description: "Unraveling an ancient mystery that could change the world.",
+                    imageUrl: "https://placehold.co/400x250/334155/cbd5e1?text=Movie+5"
+                },
+                {
+                    title: "Future's Edge",
+                    description: "A thrilling ride into a dystopian future.",
+                    imageUrl: "https://placehold.co/400x250/334155/cbd5e1?text=Movie+6"
                 }
-            };
+            ];
 
-            // Function to hide all main content sections
-            const hideAllSections = () => {
-                allMoviesSection.style.display = 'none';
-                moviePlayerSection.style.display = 'none';
-                movieSearchSection.style.display = 'none';
-                webSeriesSearchSection.style.display = 'none';
-            };
-
-            // Function to show a specific main content section
-            const showSection = (sectionElement) => {
-                hideAllSections();
-                sectionElement.style.display = 'block';
-                sectionElement.scrollIntoView({ behavior: 'smooth' }); // Scroll to view the section
-            };
-
-            // --- Event Listeners for Navigation ---
-            navAllMovies.addEventListener('click', (e) => {
-                e.preventDefault();
-                showSection(allMoviesSection);
-            });
-
-            navMoviesSearch.addEventListener('click', (e) => {
-                e.preventDefault();
-                showSection(movieSearchSection);
-                // Clear any previously loaded custom movie content
-                customMovieIframe.src = '';
-                customMovieEmbedContainer.style.display = 'none';
-                movieIdInput.value = '';
-            });
-
-            navWebSeriesSearch.addEventListener('click', (e) => {
-                e.preventDefault();
-                showSection(webSeriesSearchSection);
-                // Clear any previously loaded custom web series content
-                customWebSeriesIframe.src = '';
-                customWebSeriesEmbedContainer.style.display = 'none';
-                webSeriesIdInput.value = '';
-            });
-
-            // --- Event Listeners for Pre-defined Movies ---
-            document.querySelectorAll('#allMoviesSection .movie-card button').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const movieId = event.target.dataset.movieId;
-                    const movie = moviesData[movieId];
-                    if (movie) {
-                        moviePlayerTitle.textContent = movie.title;
-                        movieIframe.src = movie.iframeSrc;
-                        movieAboutContent.innerHTML = movie.about;
-                        showSection(moviePlayerSection);
-                    } else {
-                        console.error('Movie not found:', movieId);
-                    }
-                });
-            });
-
-            if (backToAllMoviesBtn) {
-                backToAllMoviesBtn.addEventListener('click', showSection.bind(null, allMoviesSection));
-                // When going back, clear the iframe source to stop playback
-                backToAllMoviesBtn.addEventListener('click', () => {
-                    movieIframe.src = '';
+            // Function to render movie cards
+            function renderMovies() {
+                featuredMoviesContainer.innerHTML = ''; // Clear existing content
+                movies.forEach(movie => {
+                    const movieCard = document.createElement('div');
+                    movieCard.className = 'movie-card';
+                    movieCard.innerHTML = `
+                        <img src="${movie.imageUrl}" alt="${movie.title}" class="movie-image rounded-t-lg">
+                        <div class="p-4">
+                            <h3 class="movie-title">${movie.title}</h3>
+                            <p class="movie-description">${movie.description}</p>
+                        </div>
+                    `;
+                    featuredMoviesContainer.appendChild(movieCard);
                 });
             }
 
-            // --- Event Listener for Custom Movie Search ---
-            searchMovieBtn.addEventListener('click', () => {
-                const id = movieIdInput.value.trim();
-                if (id) {
-                    const embedUrl = `https://vidsrc.to/embed/movie/${id}`;
-                    customMovieIframe.src = embedUrl;
-                    customMovieEmbedContainer.style.display = 'block';
-                    customMovieEmbedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                    alert('कृपया IMDb या TMDB ID दर्ज करें।');
-                }
-            });
-
-            // --- Event Listener for Custom Web Series Search ---
-            searchWebSeriesBtn.addEventListener('click', () => {
-                const id = webSeriesIdInput.value.trim();
-                if (id) {
-                    const embedUrl = `https://vidsrc.to/embed/tv/${id}`; // 'tv' for web series
-                    customWebSeriesIframe.src = embedUrl;
-                    customWebSeriesEmbedContainer.style.display = 'block';
-                    customWebSeriesEmbedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                } else {
-                    alert('कृपया IMDb या TMDB ID दर्ज करें।');
-                }
-            });
-
-            // Initial state: Show the allMoviesSection
-            showSection(allMoviesSection);
+            // Initial render of movies
+            renderMovies();
         });
     </script>
 </body>
