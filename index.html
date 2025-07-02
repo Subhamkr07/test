@@ -67,6 +67,27 @@
             font-size: 0.9rem;
             color: #a0aec0;
         }
+        /* Styles for the video player container */
+        .video-player-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            background-color: #000;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
+        }
+        .video-player-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -95,6 +116,14 @@
             </div>
         </section>
 
+        <!-- Video Player Section -->
+        <section id="videoPlayerSection" class="mb-12 hidden">
+            <h2 class="text-3xl font-semibold mb-6 text-center text-blue-300">Now Playing</h2>
+            <div class="video-player-container">
+                <iframe id="moviePlayer" src="" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen></iframe>
+            </div>
+        </section>
+
         <section>
             <h2 class="text-3xl font-semibold mb-6 text-blue-300">Featured Movies</h2>
             <div id="featuredMovies" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -113,14 +142,24 @@
             const movieSearchForm = document.getElementById('movieSearchForm');
             const movieSearchInput = document.getElementById('movieSearchInput');
             const featuredMoviesContainer = document.getElementById('featuredMovies');
+            const videoPlayerSection = document.getElementById('videoPlayerSection');
+            const moviePlayer = document.getElementById('moviePlayer');
 
-            // Handle form submission to ensure 'xx' is replaced
+            // Handle form submission to play the movie
             movieSearchForm.addEventListener('submit', (event) => {
-                // The 'name="key"' attribute on the input already handles sending the value
-                // to 'player4u.xyz/embed?key=MOVIE_NAME'.
-                // No explicit JavaScript modification of the action URL is needed here,
-                // as the browser handles the form submission correctly.
-                console.log('Searching for:', movieSearchInput.value);
+                event.preventDefault(); // Prevent default form submission
+
+                const movieName = movieSearchInput.value.trim();
+                if (movieName) {
+                    const embedUrl = `https://player4u.xyz/embed?key=${encodeURIComponent(movieName)}`;
+                    moviePlayer.src = embedUrl;
+                    videoPlayerSection.classList.remove('hidden'); // Show the video player
+                    // Scroll to the video player section for better UX
+                    videoPlayerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    // Optionally, hide the video player if search input is empty
+                    videoPlayerSection.classList.add('hidden');
+                }
             });
 
             // Dummy data for featured movies
