@@ -1,166 +1,401 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shubham movie</title>
+    <title>Shubham Movie Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Hind+Siliguri:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f97316;
+            --dark: #1e293b;
+            --darker: #0f172a;
+        }
+        
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Dark background */
-            color: #e2e8f0; /* Light text color */
+            font-family: 'Inter', 'Hind Siliguri', sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: #e2e8f0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            overflow-x: hidden;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        .movie-player-container {
-            position: relative;
-            width: 100%;
-            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-            height: 0;
+        
+        .movie-card {
+            background: linear-gradient(145deg, #2d3748, #1f2937);
+            border-radius: 16px;
             overflow: hidden;
-            border-radius: 0.75rem; /* Rounded corners */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            background-color: #2d3748;
+            box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateY(0) scale(1);
+            position: relative;
+            border: 1px solid rgba(99, 102, 241, 0.2);
         }
-        .movie-player-container iframe {
+        
+        .movie-card::before {
+            content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            border: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-        .movie-card {
-            background-color: #2d3748; /* Darker gray for cards */
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            text-align: center;
-            transition: transform 0.2s ease-in-out;
-        }
+        
         .movie-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+            border-color: rgba(99, 102, 241, 0.5);
         }
+        
+        .movie-card:hover::before {
+            opacity: 1;
+        }
+        
         .movie-card img {
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
+            transition: transform 0.5s ease;
         }
-        /* Initially hide sections */
-        #moviePlayerSection, #movieSearchSection, #webSeriesSearchSection, #searchPlayerSection {
-            display: none;
+        
+        .movie-card:hover img {
+            transform: scale(1.05);
+        }
+        
+        .glow {
+            text-shadow: 0 0 10px rgba(79, 70, 229, 0.7), 0 0 20px rgba(79, 70, 229, 0.5);
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 10%;
+            width: 80%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            border-radius: 2px;
+        }
+        
+        .tab-button {
+            background: rgba(45, 55, 72, 0.7);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active, .tab-button:hover {
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .player-container {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: linear-gradient(145deg, #1f2937, #111827);
+        }
+        
+        .player-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(79, 70, 229, 0.1), transparent);
+            pointer-events: none;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .category-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        
+        .search-input:focus {
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-link {
+            position: relative;
+            padding: 8px 0;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .back-btn {
+            background: linear-gradient(145deg, var(--primary), var(--primary-dark));
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
     </style>
 </head>
 <body class="antialiased">
-    <header class="bg-gray-800 py-4 shadow-lg sticky top-0 z-50">
-        <div class="container flex flex-col sm:flex-row justify-between items-center">
-            <h1 class="text-3xl font-bold text-white mb-2 sm:mb-0">
-                Shubham movie
-            </h1>
+    <header class="bg-gray-900 py-4 shadow-xl sticky top-0 z-50 backdrop-blur-sm bg-opacity-80">
+        <div class="container mx-auto px-4 flex flex-col sm:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 sm:mb-0">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 mr-3 flex items-center justify-center floating">
+                    <i class="fas fa-play text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-white glow">
+                    Shubham <span class="text-indigo-400">Movie</span> Hub
+                </h1>
+            </div>
+            
             <nav>
-                <ul class="flex space-x-4">
-                    <li><a href="#" id="navAllMovies" class="text-gray-300 hover:text-white transition duration-300">होम</a></li>
-                    <li><a href="#" id="navMoviesSearch" class="text-gray-300 hover:text-white transition duration-300">मूवीज</a></li>
-                    <li><a href="#" id="navWebSeriesSearch" class="text-gray-300 hover:text-white transition duration-300">वेब सीरीज</a></li>
-                    <li><a href="#" id="navSearch" class="text-gray-300 hover:text-white transition duration-300">खोजें</a></li>
+                <ul class="flex space-x-6">
+                    <li>
+                        <a href="#" id="navAllMovies" class="nav-link text-gray-300 hover:text-white text-lg font-medium transition duration-300">
+                            <i class="fas fa-home mr-2"></i>होम
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="navMoviesSearch" class="nav-link text-gray-300 hover:text-white text-lg font-medium transition duration-300">
+                            <i class="fas fa-film mr-2"></i>मूवीज
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="navWebSeriesSearch" class="nav-link text-gray-300 hover:text-white text-lg font-medium transition duration-300">
+                            <i class="fas fa-tv mr-2"></i>वेब सीरीज
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="navSearch" class="nav-link text-gray-300 hover:text-white text-lg font-medium transition duration-300">
+                            <i class="fas fa-search mr-2"></i>खोजें
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </div>
     </header>
 
     <main class="flex-grow py-8">
-        <div class="container">
-            <!-- All Movies Section -->
-            <section id="allMoviesSection" class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                <h3 class="text-2xl font-semibold text-white mb-6 text-center">सभी फिल्में</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center">
-                    <div class="movie-card">
-                        <img src="https://placehold.co/300x450/800080/ffffff?text=Bhool+Bhulaiyaa+3" alt="Bhool Bhulaiyaa 3 Poster" class="w-full h-auto rounded-lg mx-auto">
-                        <h4 class="text-xl font-semibold text-white mt-2">भूल भुलैया 3</h4>
-                        <p class="text-gray-400 text-sm">शैली: हॉरर, कॉमेडी</p>
-                        <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition duration-300" data-movie-id="bhoolBhulaiyaa3">देखें</button>
+        <div class="container mx-auto px-4">
+            <!-- Hero Section -->
+            <section class="mb-12 text-center py-12 rounded-2xl bg-gradient-to-r from-gray-900 to-indigo-900 relative overflow-hidden">
+                <div class="absolute inset-0 bg-grid-gray-800/20"></div>
+                <div class="relative z-10 max-w-3xl mx-auto">
+                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 slide-in">
+                        बॉलीवुड, हॉलीवुड और साउथ की <span class="text-indigo-400">बेस्ट फिल्में</span>
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-8 fade-in">
+                        HD क्वालिटी में हजारों फिल्में और वेब सीरीज बिना विज्ञापन के
+                    </p>
+                    <div class="flex justify-center gap-4">
+                        <button id="exploreMovies" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 transform hover:scale-105 shadow-lg pulse">
+                            <i class="fas fa-play-circle mr-2"></i>अभी देखें
+                        </button>
+                        <button id="howToUse" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-all duration-300 border border-indigo-500/30">
+                            <i class="fas fa-info-circle mr-2"></i>कैसे देखें
+                        </button>
                     </div>
+                </div>
+            </section>
 
-                    <div class="movie-card">
-                        <img src="https://placehold.co/300x450/4CAF50/ffffff?text=Mrs." alt="Mrs. Movie Poster" class="w-full h-auto rounded-lg mx-auto">
-                        <h4 class="text-xl font-semibold text-white mt-2">मिसेज</h4>
-                        <p class="text-gray-400 text-sm">शैली: ड्रामा</p>
-                        <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition duration-300" data-movie-id="mrs">देखें</button>
+            <!-- All Movies Section -->
+            <section id="allMoviesSection" class="mb-8 p-6 bg-gray-900 rounded-2xl shadow-xl">
+                <div class="flex flex-wrap justify-between items-center mb-8">
+                    <h3 class="section-title text-3xl font-bold text-white">सभी फिल्में</h3>
+                    
+                    <div class="flex flex-wrap gap-2 mt-4 sm:mt-0">
+                        <button class="tab-button active px-4 py-2 rounded-full text-white" data-category="all">सभी</button>
+                        <button class="tab-button px-4 py-2 rounded-full text-white" data-category="hindi">हिंदी</button>
+                        <button class="tab-button px-4 py-2 rounded-full text-white" data-category="south">साउथ</button>
+                        <button class="tab-button px-4 py-2 rounded-full text-white" data-category="hollywood">हॉलीवुड</button>
+                        <button class="tab-button px-4 py-2 rounded-full text-white" data-category="other">अन्य</button>
                     </div>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+                    <!-- Movies will be dynamically added here -->
                 </div>
             </section>
 
             <!-- Pre-defined Movie Player Section -->
             <section id="moviePlayerSection" class="mb-8">
-                <button id="backToAllMoviesBtn" class="mb-4 px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-bold rounded-full transition duration-300">
-                    &larr; सभी फिल्में देखें
+                <button id="backToAllMoviesBtn" class="back-btn mb-6 px-6 py-3 text-white font-bold rounded-full transition duration-300 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> सभी फिल्में देखें
                 </button>
-                <h2 id="moviePlayerTitle" class="text-4xl font-extrabold text-center text-white mb-6"></h2>
-                <div class="movie-player-container">
-                    <iframe id="movieIframe" src="" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                <h2 id="moviePlayerTitle" class="text-4xl font-extrabold text-center text-white mb-8"></h2>
+                <div class="player-container">
+                    <div class="relative w-full pb-[56.25%]">
+                        <iframe id="movieIframe" src="" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen class="absolute inset-0"></iframe>
+                    </div>
                 </div>
-                <div id="movieAboutSection" class="mt-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-semibold text-white mb-4">फिल्म के बारे में</h3>
+                <div id="movieAboutSection" class="mt-8 p-6 bg-gray-900 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-semibold text-white mb-4 flex items-center">
+                        <i class="fas fa-info-circle mr-3 text-indigo-400"></i>फिल्म के बारे में
+                    </h3>
                     <p id="movieAboutContent" class="text-gray-300 leading-relaxed"></p>
                 </div>
             </section>
 
             <!-- Custom Movie Search Section -->
-            <section id="movieSearchSection" class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-extrabold text-white mb-6 text-center">मूवी खोजें</h2>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-                    <input type="text" id="movieIdInput" class="form-control text-center form-control-lg bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500 flex-grow" placeholder="IMDb या TMDB ID (उदा. tt1234567)" name="id">
-                    <button id="searchMovieBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300">खोजें</button>
+            <section id="movieSearchSection" class="mb-8 p-6 bg-gray-900 rounded-2xl shadow-xl">
+                <h2 class="section-title text-3xl font-bold text-white mb-8 text-center">मूवी खोजें</h2>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-8 max-w-2xl mx-auto">
+                    <div class="relative w-full">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="movieIdInput" class="w-full pl-12 pr-4 py-4 bg-gray-800 text-white rounded-xl border border-gray-700 focus:outline-none focus:border-indigo-500 transition duration-300 search-input" placeholder="IMDb ID दर्ज करें (उदा. tt5074352)" name="id">
+                    </div>
+                    <button id="searchMovieBtn" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-play mr-2"></i>खोजें
+                    </button>
                 </div>
-                <div id="customMovieEmbedContainer" class="movie-player-container mt-6" style="display: none;">
-                    <iframe id="customMovieIframe" src="" allow="autoplay; fullscreen" allowfullscreen="yes" frameborder="no" scrolling="no" style="width: 100%; height: 100%; overflow: hidden;"></iframe>
+                <div id="customMovieEmbedContainer" class="player-container mt-8 hidden">
+                    <div class="relative w-full pb-[56.25%]">
+                        <iframe id="customMovieIframe" src="" allow="autoplay; fullscreen" allowfullscreen="yes" frameborder="no" scrolling="no" class="absolute inset-0"></iframe>
+                    </div>
                 </div>
-                <p id="movieEmbedInstructions" class="text-gray-400 mt-4 text-center">आईडी (जैसे 'tt' से शुरू होने वाली IMDb ID या TMDB ID) दर्ज करें और मूवी देखने के लिए 'खोजें' पर क्लिक करें।</p>
+                <p id="movieEmbedInstructions" class="text-gray-400 mt-6 text-center max-w-2xl mx-auto">
+                    <i class="fas fa-lightbulb mr-2 text-yellow-400"></i>आईडी (जैसे 'tt' से शुरू होने वाली IMDb ID) दर्ज करें और मूवी देखने के लिए 'खोजें' पर क्लिक करें।
+                </p>
             </section>
 
             <!-- Custom Web Series Search Section -->
-            <section id="webSeriesSearchSection" class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-extrabold text-white mb-6 text-center">वेब सीरीज खोजें</h2>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
-                    <input type="text" id="webSeriesIdInput" class="form-control text-center form-control-lg bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500 flex-grow" placeholder="IMDb या TMDB ID (उदा. tt18382028)" name="id">
-                    <button id="searchWebSeriesBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300">खोजें</button>
+            <section id="webSeriesSearchSection" class="mb-8 p-6 bg-gray-900 rounded-2xl shadow-xl">
+                <h2 class="section-title text-3xl font-bold text-white mb-8 text-center">वेब सीरीज खोजें</h2>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-8 max-w-2xl mx-auto">
+                    <div class="relative w-full">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="webSeriesIdInput" class="w-full pl-12 pr-4 py-4 bg-gray-800 text-white rounded-xl border border-gray-700 focus:outline-none focus:border-indigo-500 transition duration-300 search-input" placeholder="IMDb ID दर्ज करें (उदा. tt18382028)" name="id">
+                    </div>
+                    <button id="searchWebSeriesBtn" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-play mr-2"></i>खोजें
+                    </button>
                 </div>
-                <div id="customWebSeriesEmbedContainer" class="movie-player-container mt-6" style="display: none;">
-                    <iframe id="customWebSeriesIframe" src="" allow="autoplay; fullscreen" allowfullscreen="yes" frameborder="no" scrolling="no" style="width: 100%; height: 100%; overflow: hidden;"></iframe>
+                <div id="customWebSeriesEmbedContainer" class="player-container mt-8 hidden">
+                    <div class="relative w-full pb-[56.25%]">
+                        <iframe id="customWebSeriesIframe" src="" allow="autoplay; fullscreen" allowfullscreen="yes" frameborder="no" scrolling="no" class="absolute inset-0"></iframe>
+                    </div>
                 </div>
-                <p id="webSeriesEmbedInstructions" class="text-gray-400 mt-4 text-center">आईडी (जैसे 'tt' से शुरू होने वाली IMDb ID या TMDB ID) दर्ज करें और वेब सीरीज देखने के लिए 'खोजें' पर क्लिक करें।</p>
+                <p id="webSeriesEmbedInstructions" class="text-gray-400 mt-6 text-center max-w-2xl mx-auto">
+                    <i class="fas fa-lightbulb mr-2 text-yellow-400"></i>आईडी (जैसे 'tt' से शुरू होने वाली IMDb ID) दर्ज करें और वेब सीरीज देखने के लिए 'खोजें' पर क्लिक करें।
+                </p>
             </section>
 
             <!-- New Player4u Search Section -->
-            <section id="searchPlayerSection" class="mb-8 p-6 bg-gray-800 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-extrabold text-white mb-6 text-center">खोजें और देखें</h2>
-                 <form id="player4uForm" class="border-b border-dotted border-gray-600 pb-4 mb-4">
-                    <div class="flex flex-col md:flex-row items-center justify-center gap-4">
-                        <input id="player4uInput" name="key" type="search" placeholder="Search and play..." required
-                               class="form-control text-center form-control-lg bg-gray-700 text-white p-3 rounded-md border border-gray-600 focus:outline-none focus:border-blue-500 flex-grow">
-                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-md transition duration-300">Search</button>
+            <section id="searchPlayerSection" class="mb-8 p-6 bg-gray-900 rounded-2xl shadow-xl">
+                <h2 class="section-title text-3xl font-bold text-white mb-8 text-center">खोजें और देखें</h2>
+                <form id="player4uForm" class="max-w-2xl mx-auto">
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-8">
+                        <div class="relative w-full">
+                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input id="player4uInput" name="key" type="search" placeholder="खोजें और प्ले करें..." required
+                                class="w-full pl-12 pr-4 py-4 bg-gray-800 text-white rounded-xl border border-gray-700 focus:outline-none focus:border-indigo-500 transition duration-300 search-input">
+                        </div>
+                        <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg">
+                            <i class="fas fa-search mr-2"></i>खोजें
+                        </button>
                     </div>
                 </form>
-                <div id="player4uIframeContainer" class="movie-player-container mt-6" style="display: none;">
-                    <iframe id="player4uIframe" src="" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen></iframe>
+                <div id="player4uIframeContainer" class="player-container mt-8 hidden">
+                    <div class="relative w-full pb-[56.25%]">
+                        <iframe id="player4uIframe" src="" width="100%" height="100%" frameborder="0" scrolling="no" allowfullscreen class="absolute inset-0"></iframe>
+                    </div>
                 </div>
             </section>
         </div>
     </main>
 
-    <footer class="bg-gray-900 py-6 mt-auto shadow-inner">
-        <div class="container text-center text-gray-400">
-            <p>&copy; 2025 Shubham movie Fan Page. All rights reserved.</p>
-            <p class="mt-2 text-sm text-red-300">
-                **महत्वपूर्ण अस्वीकरण:** इस वेबसाइट पर एम्बेड किए गए वीडियो बाहरी तृतीय-पक्ष स्रोतों से आते हैं। हम किसी भी वीडियो की मेजबानी नहीं करते हैं और न ही किसी भी सामग्री के मालिक हैं। सामग्री की उपलब्धता और कानूनी अनुपालन के लिए स्रोत प्रदाता जिम्मेदार हैं। कृपया सुनिश्चित करें कि आप ऐसी सामग्री को देखने के लिए कानूनी रूप से अधिकृत हैं।
+    <footer class="bg-gray-900 py-8 mt-auto shadow-inner">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center mb-6">
+                <div class="flex space-x-6 text-xl">
+                    <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-indigo-400 transition duration-300">
+                        <i class="fab fa-telegram"></i>
+                    </a>
+                </div>
+            </div>
+            <p class="text-gray-400">&copy; 2025 Shubham Movie Hub. All rights reserved.</p>
+            <p class="mt-4 text-sm text-red-300 max-w-3xl mx-auto">
+                <i class="fas fa-exclamation-triangle mr-2"></i>**महत्वपूर्ण अस्वीकरण:** इस वेबसाइट पर एम्बेड किए गए वीडियो बाहरी तृतीय-पक्ष स्रोतों से आते हैं। हम किसी भी वीडियो की मेजबानी नहीं करते हैं और न ही किसी भी सामग्री के मालिक हैं। सामग्री की उपलब्धता और कानूनी अनुपालन के लिए स्रोत प्रदाता जिम्मेदार हैं। कृपया सुनिश्चित करें कि आप ऐसी सामग्री को देखने के लिए कानूनी रूप से अधिकृत हैं।
             </p>
         </div>
     </footer>
@@ -173,25 +408,25 @@
             const movieSearchSection = document.getElementById('movieSearchSection');
             const webSeriesSearchSection = document.getElementById('webSeriesSearchSection');
             const searchPlayerSection = document.getElementById('searchPlayerSection');
-
+            
             // Navigation buttons
             const navAllMovies = document.getElementById('navAllMovies');
             const navMoviesSearch = document.getElementById('navMoviesSearch');
             const navWebSeriesSearch = document.getElementById('navWebSeriesSearch');
             const navSearch = document.getElementById('navSearch');
-
+            
             // Elements for pre-defined movie player
             const movieIframe = document.getElementById('movieIframe');
             const moviePlayerTitle = document.getElementById('moviePlayerTitle');
             const movieAboutContent = document.getElementById('movieAboutContent');
             const backToAllMoviesBtn = document.getElementById('backToAllMoviesBtn');
-
+            
             // Elements for custom Movie Search
             const movieIdInput = document.getElementById('movieIdInput');
             const searchMovieBtn = document.getElementById('searchMovieBtn');
             const customMovieEmbedContainer = document.getElementById('customMovieEmbedContainer');
             const customMovieIframe = document.getElementById('customMovieIframe');
-
+            
             // Elements for custom Web Series Search
             const webSeriesIdInput = document.getElementById('webSeriesIdInput');
             const searchWebSeriesBtn = document.getElementById('searchWebSeriesBtn');
@@ -203,21 +438,378 @@
             const player4uInput = document.getElementById('player4uInput');
             const player4uIframe = document.getElementById('player4uIframe');
             const player4uIframeContainer = document.getElementById('player4uIframeContainer');
-
-            // Define pre-defined movie data
+            
+            // Buttons
+            const exploreMoviesBtn = document.getElementById('exploreMovies');
+            const howToUseBtn = document.getElementById('howToUse');
+            
+            // Movie data
             const moviesData = {
-                bhoolBhulaiyaa3: {
-                    title: 'भूल भुलैया 3 देखें!',
-                    iframeSrc: 'https://www.2embed.cc/embed/tt26932223',
-                    about: `भूल भुलैया 3 लोकप्रिय हॉरर-कॉमेडी फ्रेंचाइजी की बहुप्रतीक्षित तीसरी किस्त है। अनीस बज्मी द्वारा निर्देशित, यह फिल्म अपने पूर्ववर्तियों की विरासत का पालन करते हुए, रोंगटे खड़े कर देने वाले पलों और प्रफुल्लित करने वाली कॉमेडी का मिश्रण प्रदान करने का वादा करती है। एक शानदार कलाकारों और एक दिलचस्प कथानक के साथ, यह फिल्म एक ब्लॉकबस्टर बनने वाली है। अधिक रहस्य, हंसी और डरावने दृश्यों के लिए तैयार हो जाइए!
-                            <br><br>
-                            कार्तिक आर्यन, विद्या बालन और तृप्ति डिमरी अभिनीत, यह फिल्म नई ट्विस्ट और टर्न के साथ कहानी को जारी रखती है, जिसमें प्रिय पात्रों को वापस लाया गया है और नए पात्रों को पेश किया गया है। रोमांच से न चूकें!`
+                // Hindi Movies
+                "tt5074352": {
+                    title: "दंगल",
+                    category: "hindi",
+                    about: "महावीर सिंह फोगाट, एक पूर्व पहलवान, अपनी दो बेटियों को विश्व स्तरीय पहलवान बनाने के लिए प्रशिक्षित करता है। यह फिल्म वास्तविक घटनाओं पर आधारित है और महिला सशक्तिकरण को दर्शाती है।"
                 },
-                mrs: {
-                    title: 'मिसेज देखें!',
-                    iframeSrc: 'https://www.2embed.cc/embed/tt27032419',
-                    about: `मिसेज एक मार्मिक ड्रामा फिल्म है जो एक महिला के जीवन के उतार-चढ़ाव को दर्शाती है। यह फिल्म समाज में एक महिला की भूमिका और उसके संघर्षों पर प्रकाश डालती है। सशक्त अभिनय और एक दमदार कहानी के साथ, यह फिल्म दर्शकों को भावुक कर देगी।`
+                "tt15354916": {
+                    title: "जवान",
+                    category: "hindi",
+                    about: "जवान एक एक्शन थ्रिलर फिल्म है जिसमें शाहरुख खान मुख्य भूमिका में हैं। फिल्म एक ऐसे आदमी की कहानी है जो देश की सुरक्षा के लिए खतरनाक अपराधियों से लड़ता है।"
+                },
+                "tt12844910": {
+                    title: "पठान",
+                    category: "hindi",
+                    about: "पठान एक सुपरस्पाय एक्शन थ्रिलर फिल्म है जिसमें शाहरुख खान और दीपिका पादुकोण मुख्य भूमिका में हैं। फिल्म एक भारतीय एजेंट की कहानी है जो देश की सुरक्षा के लिए खतरनाक आतंकवादियों से लड़ता है।"
+                },
+                "tt13751694": {
+                    title: "एनिमल",
+                    category: "hindi",
+                    about: "एनिमल एक गहन पारिवारिक ड्रामा और एक्शन फिल्म है जिसमें रणबीर कपूर मुख्य भूमिका में हैं। फिल्म एक पिता और बेटे के जटिल रिश्ते और उनके बीच की दूरियों की कहानी है।"
+                },
+                "tt3863552": {
+                    title: "बजरंगी भाईजान",
+                    category: "hindi",
+                    about: "बजरंगी भाईजान एक भावुक कहानी है जो भारत और पाकिस्तान के बीच मानवीय संबंधों को दर्शाती है। सलमान खान एक ऐसे युवक की भूमिका में हैं जो पाकिस्तान से भटकी एक बच्ची को उसके घर वापस पहुँचाने का प्रयास करता है।"
+                },
+                "tt2338151": {
+                    title: "पीके",
+                    category: "hindi",
+                    about: "पीके एक सामाजिक कॉमेडी-ड्रामा फिल्म है जिसमें आमिर खान एक एलियन की भूमिका में हैं जो पृथ्वी पर आता है और धर्म के नाम पर की जाने वाली मानवीय मूर्खताओं का सामना करता है।"
+                },
+                "tt15441054": {
+                    title: "गदर 2",
+                    category: "hindi",
+                    about: "गदर 2 मूल गदर फिल्म का सीक्वल है जो भारत-पाकिस्तान विभाजन के समय की कहानी को आगे बढ़ाती है। सनी देओल और अमीषा पटेल ने फिर से मुख्य भूमिकाएँ निभाई हैं।"
+                },
+                "tt4832640": {
+                    title: "सुल्तान",
+                    category: "hindi",
+                    about: "सुल्तान एक कुश्ती चैंपियन की कहानी है जो अपने करियर के शीर्ष पर सब कुछ खो देता है और फिर वापसी करता है। सलमान खान और अनुष्का शर्मा मुख्य भूमिकाओं में हैं।"
+                },
+                "tt6452574": {
+                    title: "संजू",
+                    category: "hindi",
+                    about: "संजू बॉलीवुड अभिनेता संजय दत्त के जीवन पर आधारित जीवनी फिल्म है। रणबीर कपूर ने संजय दत्त की भूमिका निभाई है और उनके जीवन के उतार-चढ़ाव को दर्शाया है।"
+                },
+                "tt5935704": {
+                    title: "पद्मावत",
+                    category: "hindi",
+                    about: "पद्मावत एक ऐतिहासिक ड्रामा फिल्म है जो चित्तौड़ की रानी पद्मावती की कथा पर आधारित है। दीपिका पादुकोण, शाहिद कपूर और रणवीर सिंह मुख्य भूमिकाओं में हैं।"
+                },
+                "tt5956100": {
+                    title: "टाइगर जिंदा है",
+                    category: "hindi",
+                    about: "टाइगर जिंदा है एक स्पाई एक्शन थ्रिलर फिल्म है जो एक भारतीय एजेंट की कहानी है जो इराक में फँसे नर्सों को बचाने का काम करता है। सलमान खान और कैटरीना कैफ मुख्य भूमिकाओं में हैं।"
+                },
+                "tt1833673": {
+                    title: "धूम 3",
+                    category: "hindi",
+                    about: "धूम 3 एक्शन थ्रिलर फिल्म श्रृंखला की तीसरी कड़ी है जिसमें आमिर खान, अभिषेक बच्चन और उदय चोपड़ा मुख्य भूमिकाओं में हैं। फिल्म एक सर्कस कलाकार की कहानी है जो बैंक डकैती करता है।"
+                },
+                "tt7430722": {
+                    title: "वॉर",
+                    category: "hindi",
+                    about: "वॉर एक एक्शन स्पाई थ्रिलर फिल्म है जिसमें हृितिक रोशन और टाइगर श्रॉफ मुख्य भूमिकाओं में हैं। फिल्म दो एजेंटों की कहानी है जो एक दूसरे के खिलाफ हो जाते हैं।"
+                },
+                "tt15428476": {
+                    title: "दंकी",
+                    category: "hindi",
+                    about: "दंकी शाहरुख खान अभिनीत एक नाटक फिल्म है जो अवैध प्रवास के मुद्दे पर केंद्रित है। फिल्म भारतीय युवाओं के विदेश जाने के सपनों और उनकी चुनौतियों को दर्शाती है।"
+                },
+                "tt10545464": {
+                    title: "टाइगर 3",
+                    category: "hindi",
+                    about: "टाइगर 3 स्पाई फ्रैंचाइज़ी की तीसरी कड़ी है जिसमें सलमान खान और कैटरीना कैफ मुख्य भूमिकाओं में हैं। फिल्म एजेंट टाइगर की नई खतरनाक मिशन की कहानी है।"
+                },
+                "tt8108198": {
+                    title: "अंधाधुन",
+                    category: "hindi",
+                    about: "अंधाधुन एक थ्रिलर फिल्म है जिसमें अय्यश्मान खुराना एक पियानो वादक की भूमिका में हैं जो अंधा होने का नाटक करता है और एक हत्या का गवाह बन जाता है।"
+                },
+                "tt6277462": {
+                    title: "ब्रह्मास्त्र",
+                    category: "hindi",
+                    about: "ब्रह्मास्त्र एक फैंटेसी एक्शन फिल्म है जो भारतीय पौराणिक कथाओं से प्रेरित है। रणबीर कपूर और अलिया भट्ट मुख्य भूमिकाओं में हैं।"
+                },
+                "tt2112124": {
+                    title: "चेन्नई एक्सप्रेस",
+                    category: "hindi",
+                    about: "चेन्नई एक्सप्रेस एक रोमांटिक कॉमेडी फिल्म है जिसमें शाहरुख खान और दीपिका पादुकोण मुख्य भूमिकाओं में हैं। फिल्म एक उत्तर भारतीय युवक की कहानी है जो दक्षिण भारत की यात्रा पर निकलता है।"
+                },
+                "tt1187043": {
+                    title: "3 इडियट्स",
+                    category: "hindi",
+                    about: "3 इडियट्स एक कॉमेडी-ड्रामा फिल्म है जो इंजीनियरिंग छात्रों के जीवन और शिक्षा प्रणाली पर केंद्रित है। आमिर खान, आर. माधवन और शरमन जोशी मुख्य भूमिकाओं में हैं।"
+                },
+                "tt8281284": {
+                    title: "सिम्बा",
+                    category: "hindi",
+                    about: "सिम्बा एक एक्शन कॉमेडी फिल्म है जिसमें रणवीर सिंह एक भ्रष्ट पुलिस अधिकारी की भूमिका में हैं जो सुधर जाता है। फिल्म न्याय और सामाजिक बुराइयों के खिलाफ लड़ाई को दर्शाती है।"
+                },
+                "tt8950036": {
+                    title: "कबीर सिंह",
+                    category: "hindi",
+                    about: "कबीर सिंह एक रोमांटिक ड्रामा फिल्म है जिसमें शाहिद कपूर एक गुस्सैल सर्जन की भूमिका में हैं जो अपनी प्रेमिका के जाने के बाद टूट जाता है।"
+                },
+                "tt8108274": {
+                    title: "तान्हाजी",
+                    category: "hindi",
+                    about: "तान्हाजी एक ऐतिहासिक एक्शन फिल्म है जो मराठा योद्धा तान्हाजी मालुसरे के जीवन पर आधारित है। अजय देवगन मुख्य भूमिका में हैं।"
+                },
+                "tt9531772": {
+                    title: "सूर्यवंशी",
+                    category: "hindi",
+                    about: "सूर्यवंशी एक एक्शन फिल्म है जिसमें अक्षय कुमार एक एंटी-टेररिस्ट स्क्वाड के प्रमुख की भूमिका में हैं। फिल्म आतंकवाद से लड़ने की कहानी है।"
+                },
+                "tt2372222": {
+                    title: "किक",
+                    category: "hindi",
+                    about: "किक एक एक्शन कॉमेडी फिल्म है जिसमें सलमान खान एक सनकी व्यक्ति की भूमिका में हैं जो खतरनाक साहसिक कार्यों का आनंद लेता है।"
+                },
+                "tt1029231": {
+                    title: "कृष 3",
+                    category: "hindi",
+                    about: "कृष 3 एक सुपरहीरो फिल्म है जिसमें हृितिक रोशन मुख्य भूमिका में हैं। फिल्म कृष की कहानी है जो मानवता को बचाने के लिए खतरनाक दुश्मनों से लड़ता है।"
+                },
+                "tt4535650": {
+                    title: "दिलवाले",
+                    category: "hindi",
+                    about: "दिलवाले एक रोमांटिक एक्शन फिल्म है जिसमें शाहरुख खान और काजोल मुख्य भूमिकाओं में हैं। फिल्म दो प्रेमियों की कहानी है जो परिवार की दुश्मनी के बावजूद एक दूसरे से प्यार करते हैं।"
+                },
+                "tt5723356": {
+                    title: "गोलमाल अगेन",
+                    category: "hindi",
+                    about: "गोलमाल अगेन कॉमेडी फ्रैंचाइज़ी की चौथी कड़ी है जिसमें अजय देवगन, अर्शद वार्सी और तुषार कपूर मुख्य भूमिकाओं में हैं। फिल्म भूतों और रहस्यों पर केंद्रित है।"
+                },
+                "tt7137306": {
+                    title: "हाउसफुल 4",
+                    category: "hindi",
+                    about: "हाउसफुल 4 एक कॉमेडी फिल्म है जो पुनर्जन्म की अवधारणा पर आधारित है। अक्षय कुमार, रितेश देशमुख और बॉबी देओल मुख्य भूमिकाओं में हैं।"
+                },
+                "tt8291224": {
+                    title: "उरी",
+                    category: "hindi",
+                    about: "उरी एक देशभक्ति एक्शन फिल्म है जो 2016 के उरी हमले पर आधारित है। विक्की कौशल मुख्य भूमिका में हैं।"
+                },
+                "tt3859522": {
+                    title: "प्रेम रतन धन पायो",
+                    category: "hindi",
+                    about: "प्रेम रतन धन पायो एक रोमांटिक कॉमेडी फिल्म है जिसमें सलमान खान और सोनम कपूर मुख्य भूमिकाओं में हैं। फिल्म एक राजकुमार की कहानी है जो प्यार में पड़ता है।"
+                },
+                "tt14993250": {
+                    title: "रॉकी और रानी की प्रेम कहानी",
+                    category: "hindi",
+                    about: "रॉकी और रानी की प्रेम कहानी एक रोमांटिक कॉमेडी फिल्म है जो दो अलग-अलग पृष्ठभूमि के प्रेमियों की कहानी है। रणवीर सिंह और अलिया भट्ट मुख्य भूमिकाओं में हैं।"
+                },
+                "tt6170660": {
+                    title: "सीक्रेट सुपरस्टार",
+                    category: "hindi",
+                    about: "सीक्रेट सुपरस्टार एक संगीतमय नाटक फिल्म है जिसमें ज़ायरा वसीम एक युवा लड़की की भूमिका में हैं जो गायिका बनने का सपना देखती है। आमिर खान भी मुख्य भूमिका में हैं।"
+                },
+                "tt3735246": {
+                    title: "बाजीराव मस्तानी",
+                    category: "hindi",
+                    about: "बाजीराव मस्तानी एक ऐतिहासिक रोमांस फिल्म है जो मराठा शासक बाजीराव प्रथम और उनकी दूसरी पत्नी मस्तानी की कहानी पर आधारित है। रणवीर सिंह, दीपिका पादुकोण और प्रियंका चोपड़ा मुख्य भूमिकाओं में हैं।"
+                },
+                "tt2178470": {
+                    title: "ये जवानी है दीवानी",
+                    category: "hindi",
+                    about: "ये जवानी है दीवानी एक रोमांटिक कॉमेडी फिल्म है जिसमें रणबीर कपूर, दीपिका पादुकोण और आदित्य रॉय कपूर मुख्य भूमिकाओं में हैं। फिल्म दोस्ती और प्यार की कहानी है।"
+                },
+                "tt2082197": {
+                    title: "बर्फी!",
+                    category: "hindi",
+                    about: "बर्फी! एक रोमांटिक कॉमेडी-ड्रामा फिल्म है जिसमें रणबीर कपूर एक बहरे और गूंगे युवक की भूमिका में हैं जो एक ऑटिस्टिक लड़की से प्यार करता है।"
+                },
+                
+                // South Indian Movies
+                "tt4849438": {
+                    title: "बाहुबली 2: द कन्क्लूजन",
+                    category: "south",
+                    about: "बाहुबली 2 एक महाकाव्य फैंटेसी एक्शन फिल्म है जो महिष्मति साम्राज्य के राजकुमार शिव की कहानी है। पृभास और राणा दग्गुबाती मुख्य भूमिकाओं में हैं।"
+                },
+                "tt8178634": {
+                    title: "आरआरआर",
+                    category: "south",
+                    about: "आरआरआर एक ऐतिहासिक एक्शन ड्रामा फिल्म है जो दो क्रांतिकारियों की कहानी है जो ब्रिटिश राज के खिलाफ लड़ते हैं। एन.टी.आर. जूनियर और राम चरण मुख्य भूमिकाओं में हैं।"
+                },
+                "tt10698680": {
+                    title: "K.G.F: चैप्टर 2",
+                    category: "south",
+                    about: "K.G.F: चैप्टर 2 एक एक्शन ड्रामा फिल्म है जो रॉकी की कहानी को जारी रखती है जो भारत के सोने की खानों पर अपना आधिपत्य स्थापित करता है। यश मुख्य भूमिका में हैं।"
+                },
+                "tt1399103": {
+                    title: "सालार: पार्ट 1 - सीज़फायर",
+                    category: "south",
+                    about: "सालार एक एक्शन थ्रिलर फिल्म है जिसमें प्रभास मुख्य भूमिका में हैं। फिल्म एक खतरनाक अपराधी की कहानी है जो अपने अतीत से लड़ता है।"
+                },
+                "tt5080556": {
+                    title: "2.0",
+                    category: "south",
+                    about: "2.0 एक साइंस फिक्शन एक्शन फिल्म है जो चिति रोबोट की वापसी की कहानी है जो मोबाइल फोन से होने वाले खतरे से लड़ता है। राजिनीकांत और अक्षय कुमार मुख्य भूमिकाओं में हैं।"
+                },
+                "tt23023392": {
+                    title: "लियो",
+                    category: "south",
+                    about: "लियो एक एक्शन थ्रिलर फिल्म है जिसमें विजय मुख्य भूमिका में हैं। फिल्म एक शांतिप्रिय व्यक्ति की कहानी है जो अपने अतीत के रहस्यों का सामना करता है।"
+                },
+                "tt11663228": {
+                    title: "जेलर",
+                    category: "south",
+                    about: "जेलर एक एक्शन कॉमेडी फिल्म है जिसमें राजनीकांत एक सेवानिवृत्त जेलर की भूमिका में हैं जो अपने परिवार की रक्षा के लिए वापस आता है।"
+                },
+                "tt10701074": {
+                    title: "पोन्नियिन सेल्वन: पार्ट वन",
+                    category: "south",
+                    about: "पोन्नियिन सेल्वन एक ऐतिहासिक ड्रामा फिल्म है जो चोल साम्राज्य के राजकुमार अरुलमोझीवर्मन की कहानी पर आधारित है। ऐश्वर्या राय, विक्रम और कार्ति मुख्य भूमिकाओं में हैं।"
+                },
+                "tt9179430": {
+                    title: "विक्रम",
+                    category: "south",
+                    about: "विक्रम एक एक्शन थ्रिलर फिल्म है जिसमें कमल हासन मुख्य भूमिका में हैं। फिल्म एक खुफिया अधिकारी की कहानी है जो एक खतरनाक ड्रग सिंडिकेट से लड़ता है।"
+                },
+                "tt9389998": {
+                    title: "पुष्पा: द राइज",
+                    category: "south",
+                    about: "पुष्पा एक एक्शन ड्रामा फिल्म है जिसमें अल्लू अर्जुन मुख्य भूमिका में हैं। फिल्म लाल चंदन के तस्कर पुष्पा राज की कहानी है।"
+                },
+                "tt5071412": {
+                    title: "कबाली",
+                    category: "south",
+                    about: "कबाली एक एक्शन ड्रामा फिल्म है जिसमें रजनीकांत एक गैंगस्टर की भूमिका में हैं जो अपने परिवार को खोजने के लिए संघर्ष करता है।"
+                },
+                "tt1305797": {
+                    title: "एंथिरन",
+                    category: "south",
+                    about: "एंथिरन एक साइंस फिक्शन एक्शन फिल्म है जिसमें रजनीकांत एक वैज्ञानिक और उनके रोबोट की दोहरी भूमिका में हैं।"
+                },
+                "tt6836936": {
+                    title: "साहो",
+                    category: "south",
+                    about: "साहो एक एक्शन थ्रिलर फिल्म है जिसमें प्रभास मुख्य भूमिका में हैं। फिल्म एक अंडरकवर पुलिस अधिकारी की कहानी है जो भ्रष्ट व्यापारियों के खिलाफ लड़ता है।"
+                },
+                "tt10579952": {
+                    title: "मास्टर",
+                    category: "south",
+                    about: "मास्टर एक एक्शन थ्रिलर फिल्म है जिसमें विजय एक कॉलेज प्रोफेसर की भूमिका में हैं जो जेल के कैदियों को सुधारने का काम करता है।"
+                },
+                "tt9456254": {
+                    title: "बिगिल",
+                    category: "south",
+                    about: "बिगिल एक स्पोर्ट्स एक्शन फिल्म है जिसमें विजय एक फुटबॉल कोच की भूमिका में हैं जो महिला फुटबॉल टीम को प्रशिक्षित करता है।"
+                },
+                
+                // Hollywood Movies
+                "tt0499549": {
+                    title: "अवतार",
+                    category: "hollywood",
+                    about: "अवतार एक साइंस फिक्शन फिल्म है जो पैंडोरा ग्रह पर होने वाले संघर्ष की कहानी है। जेक सुली, एक लकवाग्रस्त मरीन, एक एवटार बॉडी में पैंडोरा के निवासियों के बीच जासूसी करने के लिए भेजा जाता है।"
+                },
+                "tt4154796": {
+                    title: "एवेंजर्स: एंडगेम",
+                    category: "hollywood",
+                    about: "एवेंजर्स: एंडगेम मार्वल सिनेमैटिक यूनिवर्स की महाकाव्य फिल्म है जिसमें बचे हुए एवेंजर्स थानोस के किए गए विनाश को पूर्ववत करने का प्रयास करते हैं।"
+                },
+                "tt1630029": {
+                    title: "अवतार: द वे ऑफ वाटर",
+                    category: "hollywood",
+                    about: "अवतार: द वे ऑफ वाटर अवतार सीरीज़ की दूसरी कड़ी है जो सुली परिवार की कहानी को जारी रखती है जो पैंडोरा के नए क्षेत्रों में शरण लेते हैं।"
+                },
+                "tt0120338": {
+                    title: "टाइटैनिक",
+                    category: "hollywood",
+                    about: "टाइटैनिक एक ऐतिहासिक रोमांस फिल्म है जो आरएमएस टाइटैनिक के डूबने की वास्तविक घटना पर आधारित है। लियोनार्डो डिकैप्रियो और केट विंसलेट मुख्य भूमिकाओं में हैं।"
+                },
+                "tt2488496": {
+                    title: "स्टार वार्स: द फोर्स अवेकन्स",
+                    category: "hollywood",
+                    about: "स्टार वार्स: द फोर्स अवेकन्स स्टार वार्स सीरीज़ की सातवीं कड़ी है जो एक नई नायिका रे की कहानी है जो ल्यूक स्काईवॉकर को ढूंढने निकलती है।"
+                },
+                "tt4154756": {
+                    title: "एवेंजर्स: इन्फिनिटी वॉर",
+                    category: "hollywood",
+                    about: "एवेंजर्स: इन्फिनिटी वॉर मार्वल सिनेमैटिक यूनिवर्स की फिल्म है जिसमें एवेंजर्स और गार्डियंस ऑफ द गैलेक्सी थानोस से लड़ते हैं जो सभी इन्फिनिटी स्टोन्स को इकट्ठा करना चाहता है।"
+                },
+                "tt10872600": {
+                    title: "स्पाइडर-मैन: नो वे होम",
+                    category: "hollywood",
+                    about: "स्पाइडर-मैन: नो वे होम स्पाइडर-मैन सीरीज़ की तीसरी कड़ी है जिसमें पीटर पार्कर डॉक्टर स्ट्रेंज की मदद से दुनिया को अपनी पहचान भूल जाने के लिए कहता है, लेकिन जादू गलत हो जाता है।"
+                },
+                "tt0369610": {
+                    title: "जुरासिक वर्ल्ड",
+                    category: "hollywood",
+                    about: "जुरासिक वर्ल्ड जुरासिक पार्क सीरीज़ की चौथी कड़ी है जो जुरासिक वर्ल्ड थीम पार्क में होने वाली अराजकता की कहानी है जब एक जेनेटिक रूप से संशोधित डायनासोर भाग जाता है।"
+                },
+                "tt6105098": {
+                    title: "द लायन किंग",
+                    category: "hollywood",
+                    about: "द लायन किंग डिज्नी की एनिमेटेड क्लासिक का फोटोरियलिस्टिक रीमेक है जो सिम्बा नाम के एक युवा शेर की कहानी है जो अपने पिता की मौत के बाद अपने साम्राज्य को वापस पाने के लिए संघर्ष करता है।"
+                },
+                "tt0848228": {
+                    title: "द एवेंजर्स",
+                    category: "hollywood",
+                    about: "द एवेंजर्स मार्वल सिनेमैटिक यूनिवर्स की फिल्म है जिसमें शील्ड के निक फ्यूरी आयरन मैन, कैप्टन अमेरिका, हल्क, थोर, ब्लैक विडो और हॉकआई को इकट्ठा करके लोकी और उसकी सेना से लड़ते हैं।"
+                },
+                
+                // Other Movies
+                "tt0245429": {
+                    title: "स्पिरिटेड अवे",
+                    category: "other",
+                    about: "स्पिरिटेड अवे एक जापानी एनिमेटेड फैंटेसी फिल्म है जो चिहिरो नाम की एक युवा लड़की की कहानी है जो आत्माओं की दुनिया में फंस जाती है और अपने माता-पिता को बचाने का प्रयास करती है।"
+                },
+                "tt6751668": {
+                    title: "पैरासाइट",
+                    category: "other",
+                    about: "पैरासाइट एक दक्षिण कोरियन ब्लैक कॉमेडी थ्रिलर फिल्म है जो किम परिवार की कहानी है जो धनी पार्क परिवार के घर में घुसपैठ करते हैं।"
+                },
+                "tt0364569": {
+                    title: "ओल्डबॉय",
+                    category: "other",
+                    about: "ओल्डबॉय एक दक्षिण कोरियन साइकोलॉजिकल थ्रिलर फिल्म है जो ओह दाए-सू की कहानी है जो 15 साल तक बंदी बनाए जाने के बाद रिहा होता है और अपने अपहरणकर्ता को ढूंढने निकलता है।"
+                },
+                "tt0211915": {
+                    title: "अमेली",
+                    category: "other",
+                    about: "अमेली एक फ्रेंच रोमांटिक कॉमेडी फिल्म है जो अमेली पौलेन नाम की एक शर्मीली वेट्रेस की कहानी है जो दूसरों की जिंदगी में खुशियाँ बाँटने का फैसला करती है।"
+                },
+                "tt0095765": {
+                    title: "सिनेमा पैराडीसो",
+                    category: "other",
+                    about: "सिनेमा पैराडीसो एक इतालवी ड्रामा फिल्म है जो एक प्रसिद्ध फिल्म निर्देशक की कहानी है जो अपने बचपन को याद करता है जब वह एक स्थानीय सिनेमा हॉल में प्रोजेक्शनिस्ट के साथ दोस्ती करता था।"
+                },
+                "tt1675434": {
+                    title: "द इनटचेबल्स",
+                    category: "other",
+                    about: "द इनटचेबल्स एक फ्रेंच ड्रामा फिल्म है जो एक अमीर लकवाग्रस्त व्यक्ति और उसके देखभाल करने वाले की दोस्ती की कहानी है।"
+                },
+                "tt0118799": {
+                    title: "लाइफ इज़ ब्यूटीफुल",
+                    category: "other",
+                    about: "लाइफ इज़ ब्यूटीफुल एक इतालवी ड्रामा फिल्म है जो एक यहूदी पिता की कहानी है जो नाजी एकाग्रता शिविर में अपने बेटे को भयानक सच्चाई से बचाने के लिए एक खेल बनाता है।"
+                },
+                "tt0317248": {
+                    title: "सिटी ऑफ गॉड",
+                    category: "other",
+                    about: "सिटी ऑफ गॉड एक ब्राज़ीलियन क्राइम ड्रामा फिल्म है जो रियो डी जनेरियो के फेवेलस में अपराध के उदय की कहानी है।"
+                },
+                "tt0405094": {
+                    title: "द लाइव्स ऑफ अदर्स",
+                    category: "other",
+                    about: "द लाइव्स ऑफ अदर्स एक जर्मन ड्रामा फिल्म है जो पूर्वी जर्मनी में स्टेसी पुलिस अधिकारी की कहानी है जो एक नाटककार और उसकी प्रेमिका पर नजर रखता है।"
+                },
+                "tt1832382": {
+                    title: "अ सेपरेशन",
+                    category: "other",
+                    about: "अ सेपरेशन एक ईरानी ड्रामा फिल्म है जो एक जोड़े के तलाक और उसके बाद होने वाली घटनाओं की कहानी है।"
                 }
+            };
+            
+            // Category names for display
+            const categoryNames = {
+                "hindi": "हिंदी फिल्म",
+                "south": "साउथ फिल्म",
+                "hollywood": "हॉलीवुड फिल्म",
+                "other": "अंतर्राष्ट्रीय फिल्म"
             };
 
             // Function to hide all main content sections
@@ -236,10 +828,56 @@
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
+            // Function to render movies for a category
+            const renderMovies = (category) => {
+                const movieGrid = document.querySelector('#allMoviesSection .grid');
+                movieGrid.innerHTML = '';
+                
+                let moviesToRender = Object.entries(moviesData);
+                
+                if (category !== 'all') {
+                    moviesToRender = moviesToRender.filter(([_, movie]) => movie.category === category);
+                }
+                
+                moviesToRender.forEach(([imdbId, movie]) => {
+                    const movieCard = document.createElement('div');
+                    movieCard.className = 'movie-card fade-in';
+                    movieCard.innerHTML = `
+                        <div class="relative">
+                            <div class="category-badge">${categoryNames[movie.category]}</div>
+                            <img src="https://placehold.co/300x450/1e293b/94a3b8?text=${encodeURIComponent(movie.title)}" 
+                                 alt="${movie.title} Poster" 
+                                 class="w-full h-64 object-cover">
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-xl font-bold text-white mb-2 truncate">${movie.title}</h4>
+                            <button class="w-full mt-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" 
+                                    data-movie-id="${imdbId}">
+                                <i class="fas fa-play mr-2"></i>देखें
+                            </button>
+                        </div>
+                    `;
+                    movieGrid.appendChild(movieCard);
+                });
+            };
+
+            // Set active tab
+            const setActiveTab = (category) => {
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    if (button.dataset.category === category) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            };
+
             // --- Event Listeners for Navigation ---
             navAllMovies.addEventListener('click', (e) => {
                 e.preventDefault();
                 showSection(allMoviesSection);
+                document.querySelector('.nav-link').classList.remove('active');
+                e.target.classList.add('active');
             });
 
             navMoviesSearch.addEventListener('click', (e) => {
@@ -248,6 +886,8 @@
                 customMovieIframe.src = '';
                 customMovieEmbedContainer.style.display = 'none';
                 movieIdInput.value = '';
+                document.querySelector('.nav-link').classList.remove('active');
+                e.target.classList.add('active');
             });
 
             navWebSeriesSearch.addEventListener('click', (e) => {
@@ -256,6 +896,8 @@
                 customWebSeriesIframe.src = '';
                 customWebSeriesEmbedContainer.style.display = 'none';
                 webSeriesIdInput.value = '';
+                document.querySelector('.nav-link').classList.remove('active');
+                e.target.classList.add('active');
             });
             
             navSearch.addEventListener('click', (e) => {
@@ -264,28 +906,39 @@
                 player4uIframe.src = '';
                 player4uIframeContainer.style.display = 'none';
                 player4uInput.value = '';
+                document.querySelector('.nav-link').classList.remove('active');
+                e.target.classList.add('active');
             });
 
-            // --- Event Listeners for Pre-defined Movies ---
-            document.querySelectorAll('#allMoviesSection .movie-card button').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    const movieId = event.target.dataset.movieId;
-                    const movie = moviesData[movieId];
-                    if (movie) {
-                        moviePlayerTitle.textContent = movie.title;
-                        movieIframe.src = movie.iframeSrc;
-                        movieAboutContent.innerHTML = movie.about;
-                        showSection(moviePlayerSection);
-                    } else {
-                        console.error('Movie not found:', movieId);
-                    }
+            // Event listener for category tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const category = button.dataset.category;
+                    setActiveTab(category);
+                    renderMovies(category);
                 });
+            });
+
+            // Event listener for movie cards
+            document.addEventListener('click', (event) => {
+                if (event.target.closest('.movie-card button')) {
+                    const button = event.target.closest('.movie-card button');
+                    const imdbId = button.dataset.movieId;
+                    const movie = moviesData[imdbId];
+                    
+                    if (movie) {
+                        moviePlayerTitle.textContent = `${movie.title} देखें`;
+                        movieIframe.src = `https://www.2embed.cc/embed/${imdbId}`;
+                        movieAboutContent.textContent = movie.about;
+                        showSection(moviePlayerSection);
+                    }
+                }
             });
 
             if (backToAllMoviesBtn) {
                 backToAllMoviesBtn.addEventListener('click', () => {
                     showSection(allMoviesSection);
-                    movieIframe.src = ''; // Stop playback
+                    movieIframe.src = '';
                 });
             }
 
@@ -298,7 +951,7 @@
                     customMovieEmbedContainer.style.display = 'block';
                     customMovieEmbedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
-                    alert('कृपया IMDb या TMDB ID दर्ज करें।');
+                    alert('कृपया IMDb ID दर्ज करें।');
                 }
             });
 
@@ -306,18 +959,18 @@
             searchWebSeriesBtn.addEventListener('click', () => {
                 const id = webSeriesIdInput.value.trim();
                 if (id) {
-                    const embedUrl = `https://vidsrc.to/embed/tv/${id}`; // 'tv' for web series
+                    const embedUrl = `https://vidsrc.to/embed/tv/${id}`;
                     customWebSeriesIframe.src = embedUrl;
                     customWebSeriesEmbedContainer.style.display = 'block';
                     customWebSeriesEmbedContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 } else {
-                    alert('कृपया IMDb या TMDB ID दर्ज करें।');
+                    alert('कृपया IMDb ID दर्ज करें।');
                 }
             });
 
             // --- Event Listener for Player4u Search Form ---
             player4uForm.addEventListener('submit', (e) => {
-                e.preventDefault(); // Prevent page reload
+                e.preventDefault();
                 const searchTerm = player4uInput.value.trim();
                 if (searchTerm) {
                     const embedUrl = `https://player4u.xyz/embed?key=${encodeURIComponent(searchTerm)}`;
@@ -327,8 +980,21 @@
                 }
             });
 
-            // Initial state: Show the allMoviesSection
+            // Explore Movies button
+            exploreMovies.addEventListener('click', () => {
+                showSection(allMoviesSection);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // How to Use button
+            howToUse.addEventListener('click', () => {
+                alert('फिल्म देखने के लिए: \n1. "सभी फिल्में" सेक्शन में जाएं\n2. किसी भी फिल्म पर "देखें" बटन पर क्लिक करें\n3. खोज के लिए "मूवीज" या "खोजें" टैब का उपयोग करें');
+            });
+
+            // Initial state: Show the allMoviesSection and render all movies
             showSection(allMoviesSection);
+            renderMovies('all');
+            setActiveTab('all');
         });
     </script>
 </body>
