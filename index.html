@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CRITICAL: These headers enable the secure context needed for FFmpeg to run -->
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin" />
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="require-corp" />
     <title>Shubham Video Editor</title>
-    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
+    <!-- Use a CDN that supports cross-origin isolation headers -->
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.min.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/wavesurfer.js@6.6.3/dist/wavesurfer.min.js"></script>
     <script src="https://unpkg.com/wavesurfer.js@6.6.3/dist/plugin/wavesurfer.regions.min.js"></script>
     <style>
@@ -643,30 +646,15 @@
         let currentMode = 'video';
         let selectedRegion = { start: 0, end: 10 };
 
-        // Initialize FFmpeg with proper error handling
+        // Correctly initialize FFmpeg using createFFmpeg
         async function initFFmpeg() {
             if (!ffmpeg) {
-                try {
-                    const { FFmpeg } = FFmpegWASM;
-                    ffmpeg = new FFmpeg();
-                    
-                    ffmpeg.on('log', ({ message }) => {
-                        console.log(message);
-                    });
-                    
-                    ffmpeg.on('progress', ({ progress }) => {
-                        if (progress > 0) {
-                            console.log(`Progress: ${Math.round(progress * 100)}%`);
-                        }
-                    });
-                    
-                    await ffmpeg.load({
-                        coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js'
-                    });
-                } catch (error) {
-                    console.error('Failed to load FFmpeg:', error);
-                    throw new Error('Failed to initialize video processing. Please refresh and try again.');
-                }
+                const { createFFmpeg } = FFmpeg;
+                ffmpeg = createFFmpeg({
+                    log: true,
+                    corePath: 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/ffmpeg-core.js',
+                });
+                await ffmpeg.load();
             }
         }
 
@@ -755,9 +743,7 @@
             const errorDiv = document.getElementById('errorMessage');
             errorDiv.textContent = message;
             errorDiv.classList.add('show');
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 5000);
+            // Do not auto-hide critical errors
         }
 
         // Check files and update step
@@ -943,6 +929,9 @@
 
         // Process media (main function)
         async function processMedia() {
+            // Clear previous errors
+            document.getElementById('errorMessage').classList.remove('show');
+
             if (currentMode === 'video') {
                 await processVideo();
             } else {
@@ -959,26 +948,29 @@
 
             try {
                 document.getElementById('processing').classList.add('show');
-                document.getElementById('processingText').textContent = 'Processing your video...';
+                document.getElementById('processingText').textContent = 'Initializing...';
                 document.getElementById('processBtn').disabled = true;
                 
                 await initFFmpeg();
                 
-                // Write files to FFmpeg filesystem
-                await ffmpeg.writeFile('input_video.mp4', new Uint8Array(await videoFile.arrayBuffer()));
-                await ffmpeg.writeFile('input_audio.mp3', new Uint8Array(await audioFile.arrayBuffer()));
+                // Write files to FFmpeg filesystem using the correct FS API
+                document.getElementById('processingText').textContent = 'Uploading files...';
+                ffmpeg.FS('writeFile', 'input_video.mp4', new Uint8Array(await videoFile.arrayBuffer()));
+                ffmpeg.FS('writeFile', 'input_audio.mp3', new Uint8Array(await audioFile.arrayBuffer()));
                 
-                // Trim audio based on selected region
-                await ffmpeg.exec([
+                // Trim audio based on selected region using the correct run command
+                document.getElementById('processingText').textContent = 'Trimming audio...';
+                await ffmpeg.run(
                     '-i', 'input_audio.mp3',
-                    '-ss', selectedRegion.start.toFixed(2),
-                    '-to', selectedRegion.end.toFixed(2),
+                    '-ss', selectedRegion.start.toString(),
+                    '-to', selectedRegion.end.toString(),
                     '-c', 'copy',
                     'trimmed_audio.mp3'
-                ]);
+                );
                 
                 // Merge trimmed audio with video
-                await ffmpeg.exec([
+                document.getElementById('processingText').textContent = 'Merging video and audio...';
+                await ffmpeg.run(
                     '-i', 'input_video.mp4',
                     '-i', 'trimmed_audio.mp3',
                     '-map', '0:v',
@@ -986,11 +978,12 @@
                     '-c:v', 'copy',
                     '-shortest',
                     'output.mp4'
-                ]);
+                );
                 
-                // Read the output file
-                const outputData = await ffmpeg.readFile('output.mp4');
-                const outputBlob = new Blob([outputData], { type: 'video/mp4' });
+                // Read the output file using the correct FS API
+                document.getElementById('processingText').textContent = 'Finalizing...';
+                const data = ffmpeg.FS('readFile', 'output.mp4');
+                const outputBlob = new Blob([data.buffer], { type: 'video/mp4' });
                 const outputUrl = URL.createObjectURL(outputBlob);
                 
                 // Setup download
@@ -1010,6 +1003,7 @@
             } catch (error) {
                 console.error('Processing error:', error);
                 showError('An error occurred while processing the video. Please try again.');
+            } finally {
                 document.getElementById('processing').classList.remove('show');
                 document.getElementById('processBtn').disabled = false;
             }
@@ -1026,26 +1020,29 @@
             
             try {
                 document.getElementById('processing').classList.add('show');
-                document.getElementById('processingText').textContent = 'Creating video from image...';
+                document.getElementById('processingText').textContent = 'Initializing...';
                 document.getElementById('processBtn').disabled = true;
                 
                 await initFFmpeg();
                 
                 // Write files to FFmpeg filesystem
-                await ffmpeg.writeFile('input_image.jpg', new Uint8Array(await imageFile.arrayBuffer()));
-                await ffmpeg.writeFile('input_audio.mp3', new Uint8Array(await audioFile.arrayBuffer()));
+                document.getElementById('processingText').textContent = 'Uploading files...';
+                ffmpeg.FS('writeFile', 'input_image.jpg', new Uint8Array(await imageFile.arrayBuffer()));
+                ffmpeg.FS('writeFile', 'input_audio.mp3', new Uint8Array(await audioFile.arrayBuffer()));
                 
                 // Trim audio based on selected region
-                await ffmpeg.exec([
+                document.getElementById('processingText').textContent = 'Trimming audio...';
+                await ffmpeg.run(
                     '-i', 'input_audio.mp3',
-                    '-ss', selectedRegion.start.toFixed(2),
-                    '-to', selectedRegion.end.toFixed(2),
+                    '-ss', selectedRegion.start.toString(),
+                    '-to', selectedRegion.end.toString(),
                     '-c', 'copy',
                     'trimmed_audio.mp3'
-                ]);
+                );
                 
                 // Create video from image with trimmed audio
-                await ffmpeg.exec([
+                document.getElementById('processingText').textContent = 'Creating video...';
+                await ffmpeg.run(
                     '-loop', '1',
                     '-i', 'input_image.jpg',
                     '-i', 'trimmed_audio.mp3',
@@ -1054,13 +1051,15 @@
                     '-c:a', 'aac',
                     '-b:a', '192k',
                     '-pix_fmt', 'yuv420p',
+                    '-t', videoDuration.toString(), // Use duration from input
                     '-shortest',
                     'output.mp4'
-                ]);
+                );
                 
                 // Read the output file
-                const outputData = await ffmpeg.readFile('output.mp4');
-                const outputBlob = new Blob([outputData], { type: 'video/mp4' });
+                document.getElementById('processingText').textContent = 'Finalizing...';
+                const data = ffmpeg.FS('readFile', 'output.mp4');
+                const outputBlob = new Blob([data.buffer], { type: 'video/mp4' });
                 const outputUrl = URL.createObjectURL(outputBlob);
                 
                 // Setup download
@@ -1080,18 +1079,11 @@
             } catch (error) {
                 console.error('Processing error:', error);
                 showError('An error occurred while creating the video. Please try again.');
+            } finally {
                 document.getElementById('processing').classList.remove('show');
                 document.getElementById('processBtn').disabled = false;
             }
         }
-
-        // Handle wavesurfer events
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pause button update when playback stops
-            if (typeof WaveSurfer !== 'undefined') {
-                // This will be set up when wavesurfer is initialized
-            }
-        });
 
         // Setup drag and drop functionality
         function setupDragAndDrop(inputId) {
@@ -1139,3 +1131,4 @@
     </script>
 </body>
 </html>
+
