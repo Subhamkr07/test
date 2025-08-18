@@ -324,7 +324,85 @@
             margin-bottom: 20px;
         }
 
-        .privacy-notice {
+        .media-type-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .media-type-btn {
+            padding: 12px 24px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .media-type-btn.active {
+            border-color: #6366f1;
+            background: #6366f1;
+            color: white;
+        }
+
+        .media-type-btn:hover {
+            border-color: #6366f1;
+            color: #6366f1;
+        }
+
+        .media-type-btn.active:hover {
+            color: white;
+        }
+
+        .image-controls {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .image-controls.show {
+            display: block;
+        }
+
+        .image-preview {
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 10px;
+            margin: 15px auto;
+            display: block;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .duration-input {
+            margin-bottom: 25px;
+        }
+
+        .duration-input label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .duration-input input {
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            width: 200px;
+            transition: all 0.3s ease;
+        }
+
+        .duration-input input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
             background: #f0f9ff;
             border: 1px solid #bae6fd;
             border-radius: 10px;
@@ -377,13 +455,13 @@
     <div class="container">
         <div class="header">
             <h1>Shubham Video Editor</h1>
-            <p>Add custom audio to your videos - all processing happens in your browser</p>
+            <p>Create videos with custom audio from video files or images - all processing happens in your browser</p>
         </div>
 
         <div class="progress-steps">
             <div class="step">
                 <div class="step-number active" id="step1">1</div>
-                <div class="step-text active" id="stepText1">Upload Video</div>
+                <div class="step-text active" id="stepText1">Upload Media</div>
             </div>
             <div class="arrow">→</div>
             <div class="step">
@@ -403,7 +481,16 @@
         </div>
 
         <div class="content">
-            <div class="upload-section">
+            <div class="media-type-selector">
+                <div class="media-type-btn active" id="videoMode" onclick="switchMode('video')">
+                    🎬 Video + Audio
+                </div>
+                <div class="media-type-btn" id="imageMode" onclick="switchMode('image')">
+                    🖼️ Image + Music
+                </div>
+            </div>
+
+            <div class="upload-section" id="videoUploadSection">
                 <div class="upload-box" onclick="document.getElementById('videoInput').click()">
                     <div class="upload-icon">🎬</div>
                     <div class="upload-text">Upload Video File</div>
@@ -416,16 +503,38 @@
                 </div>
             </div>
 
+            <div class="upload-section" id="imageUploadSection" style="display: none;">
+                <div class="upload-box" onclick="document.getElementById('imageInput').click()">
+                    <div class="upload-icon">🖼️</div>
+                    <div class="upload-text">Upload Image File</div>
+                    <div class="upload-subtext">Click here or drag & drop your image (.jpg, .png, .gif)</div>
+                    <input type="file" id="imageInput" accept=".jpg,.jpeg,.png,.gif" />
+                </div>
+                <div class="file-info" id="imageInfo">
+                    <div class="file-name" id="imageName"></div>
+                    <div class="file-size" id="imageSize"></div>
+                </div>
+            </div>
+
             <div class="upload-section">
                 <div class="upload-box" onclick="document.getElementById('audioInput').click()">
                     <div class="upload-icon">🎵</div>
-                    <div class="upload-text">Upload Audio File</div>
+                    <div class="upload-text" id="audioUploadText">Upload Audio File</div>
                     <div class="upload-subtext">Click here or drag & drop your audio (.mp3, .wav)</div>
                     <input type="file" id="audioInput" accept=".mp3,.wav" />
                 </div>
                 <div class="file-info" id="audioInfo">
                     <div class="file-name" id="audioName"></div>
                     <div class="file-size" id="audioSize"></div>
+                </div>
+            </div>
+
+            <div class="image-controls" id="imageControls">
+                <h3>Image Video Settings</h3>
+                <img id="imagePreview" class="image-preview" style="display: none;" />
+                <div class="duration-input">
+                    <label for="videoDuration">Video Duration (seconds)</label>
+                    <input type="number" id="videoDuration" placeholder="10" min="1" max="300" value="10" />
                 </div>
             </div>
 
@@ -442,14 +551,14 @@
                         <input type="number" id="endTime" placeholder="30" min="0" step="0.1" />
                     </div>
                 </div>
-                <button class="btn" id="processBtn" onclick="processVideo()">
-                    🎬 Trim & Add to Video
+                <button class="btn" id="processBtn" onclick="processMedia()">
+                    <span id="processButtonText">🎬 Trim & Add to Video</span>
                 </button>
             </div>
 
             <div class="processing" id="processing">
                 <div class="spinner"></div>
-                <div class="processing-text">Processing your video...</div>
+                <div class="processing-text" id="processingText">Processing your video...</div>
                 <div class="processing-subtext">This may take a few moments depending on file size</div>
             </div>
 
@@ -473,7 +582,9 @@
         let ffmpeg = null;
         let videoFile = null;
         let audioFile = null;
+        let imageFile = null;
         let currentStep = 1;
+        let currentMode = 'video'; // 'video' or 'image'
 
         // Initialize FFmpeg
         async function initFFmpeg() {
@@ -513,7 +624,48 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Show error message
+        // Switch between video and image modes
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update UI
+            document.getElementById('videoMode').classList.toggle('active', mode === 'video');
+            document.getElementById('imageMode').classList.toggle('active', mode === 'image');
+            
+            // Show/hide appropriate upload sections
+            document.getElementById('videoUploadSection').style.display = mode === 'video' ? 'block' : 'none';
+            document.getElementById('imageUploadSection').style.display = mode === 'image' ? 'block' : 'none';
+            
+            // Update audio upload text
+            const audioUploadText = document.getElementById('audioUploadText');
+            audioUploadText.textContent = mode === 'video' ? 'Upload Audio File' : 'Upload Music File';
+            
+            // Reset files and step
+            resetFiles();
+            updateStep(1);
+            
+            // Hide controls
+            document.getElementById('audioControls').classList.remove('show');
+            document.getElementById('imageControls').classList.remove('show');
+            document.getElementById('downloadSection').classList.remove('show');
+        }
+
+        // Reset all uploaded files
+        function resetFiles() {
+            videoFile = null;
+            audioFile = null;
+            imageFile = null;
+            
+            // Clear file inputs
+            document.getElementById('videoInput').value = '';
+            document.getElementById('audioInput').value = '';
+            document.getElementById('imageInput').value = '';
+            
+            // Hide file info
+            document.getElementById('videoInfo').classList.remove('show');
+            document.getElementById('audioInfo').classList.remove('show');
+            document.getElementById('imageInfo').classList.remove('show');
+        }
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
             errorDiv.textContent = message;
@@ -532,11 +684,27 @@
                 document.getElementById('videoSize').textContent = formatFileSize(file.size);
                 document.getElementById('videoInfo').classList.add('show');
                 
-                if (audioFile) {
-                    updateStep(3);
-                } else {
-                    updateStep(2);
-                }
+                checkFilesAndUpdateStep();
+            }
+        });
+
+        // Handle image upload
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                imageFile = file;
+                document.getElementById('imageName').textContent = file.name;
+                document.getElementById('imageSize').textContent = formatFileSize(file.size);
+                document.getElementById('imageInfo').classList.add('show');
+                
+                // Show image preview
+                const preview = document.getElementById('imagePreview');
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+                
+                document.getElementById('imageControls').classList.add('show');
+                
+                checkFilesAndUpdateStep();
             }
         });
 
@@ -555,18 +723,144 @@
                 
                 // Set default end time when audio loads
                 audioPlayer.addEventListener('loadedmetadata', function() {
-                    document.getElementById('endTime').value = Math.floor(audioPlayer.duration);
+                    const duration = Math.floor(audioPlayer.duration);
+                    document.getElementById('endTime').value = duration;
+                    
+                    // For image mode, set video duration to match audio
+                    if (currentMode === 'image') {
+                        document.getElementById('videoDuration').value = duration;
+                    }
                 });
                 
                 document.getElementById('audioControls').classList.add('show');
+                updateProcessButtonText();
                 
-                if (videoFile) {
-                    updateStep(3);
-                }
+                checkFilesAndUpdateStep();
             }
         });
 
-        // Process video
+        // Check files and update step accordingly
+        function checkFilesAndUpdateStep() {
+            const hasMedia = currentMode === 'video' ? videoFile : imageFile;
+            
+            if (hasMedia && audioFile) {
+                updateStep(3);
+            } else if (hasMedia || audioFile) {
+                updateStep(2);
+            } else {
+                updateStep(1);
+            }
+        }
+
+        // Update process button text based on mode
+        function updateProcessButtonText() {
+            const buttonText = document.getElementById('processButtonText');
+            if (currentMode === 'video') {
+                buttonText.textContent = '🎬 Trim & Add to Video';
+            } else {
+                buttonText.textContent = '🎵 Create Video with Music';
+            }
+        }
+
+        // Process media (video or image)
+        async function processMedia() {
+            if (currentMode === 'video') {
+                await processVideo();
+            } else {
+                await processImageWithMusic();
+            }
+        }
+
+        // Process image with music (create video from image)
+        async function processImageWithMusic() {
+            if (!imageFile || !audioFile) {
+                showError('Please upload both image and music files first.');
+                return;
+            }
+
+            const startTime = parseFloat(document.getElementById('startTime').value) || 0;
+            const endTime = parseFloat(document.getElementById('endTime').value);
+            const videoDuration = parseFloat(document.getElementById('videoDuration').value) || 10;
+            
+            if (endTime && endTime <= startTime) {
+                showError('Please enter valid start and end times.');
+                return;
+            }
+
+            try {
+                document.getElementById('processing').classList.add('show');
+                document.getElementById('processingText').textContent = 'Creating video from image...';
+                document.getElementById('processBtn').disabled = true;
+                
+                // Initialize FFmpeg
+                await initFFmpeg();
+                
+                // Write files to FFmpeg filesystem
+                const imageData = new Uint8Array(await imageFile.arrayBuffer());
+                const audioData = new Uint8Array(await audioFile.arrayBuffer());
+                
+                ffmpeg.writeFile('input_image.jpg', imageData);
+                ffmpeg.writeFile('input_audio.mp3', audioData);
+                
+                // Trim audio if needed
+                if (endTime) {
+                    await ffmpeg.exec([
+                        '-i', 'input_audio.mp3',
+                        '-ss', startTime.toString(),
+                        '-to', endTime.toString(),
+                        '-c', 'copy',
+                        'trimmed_audio.mp3'
+                    ]);
+                } else {
+                    await ffmpeg.exec([
+                        '-i', 'input_audio.mp3',
+                        '-ss', startTime.toString(),
+                        '-t', videoDuration.toString(),
+                        '-c', 'copy',
+                        'trimmed_audio.mp3'
+                    ]);
+                }
+                
+                // Create video from image with trimmed audio
+                await ffmpeg.exec([
+                    '-loop', '1',
+                    '-i', 'input_image.jpg',
+                    '-i', 'trimmed_audio.mp3',
+                    '-c:v', 'libx264',
+                    '-tune', 'stillimage',
+                    '-c:a', 'aac',
+                    '-b:a', '192k',
+                    '-pix_fmt', 'yuv420p',
+                    '-shortest',
+                    'output.mp4'
+                ]);
+                
+                // Read the output file
+                const outputData = ffmpeg.readFile('output.mp4');
+                const outputBlob = new Blob([outputData], { type: 'video/mp4' });
+                const outputUrl = URL.createObjectURL(outputBlob);
+                
+                // Setup download
+                const downloadBtn = document.getElementById('downloadBtn');
+                downloadBtn.onclick = function() {
+                    const a = document.createElement('a');
+                    a.href = outputUrl;
+                    a.download = 'image_video_with_music.mp4';
+                    a.click();
+                };
+                
+                // Show download section
+                document.getElementById('processing').classList.remove('show');
+                document.getElementById('downloadSection').classList.add('show');
+                updateStep(4);
+                
+            } catch (error) {
+                console.error('Processing error:', error);
+                showError('An error occurred while creating the video. Please try again.');
+                document.getElementById('processing').classList.remove('show');
+                document.getElementById('processBtn').disabled = false;
+            }
+        }
         async function processVideo() {
             if (!videoFile || !audioFile) {
                 showError('Please upload both video and audio files first.');
@@ -583,6 +877,7 @@
 
             try {
                 document.getElementById('processing').classList.add('show');
+                document.getElementById('processingText').textContent = 'Processing your video...';
                 document.getElementById('processBtn').disabled = true;
                 
                 // Initialize FFmpeg
@@ -643,7 +938,7 @@
         }
 
         // Drag and drop functionality
-        ['videoInput', 'audioInput'].forEach(inputId => {
+        function setupDragAndDrop(inputId, uploadBoxSelector) {
             const input = document.getElementById(inputId);
             const uploadBox = input.parentElement;
             
@@ -672,7 +967,12 @@
                 input.files = files;
                 input.dispatchEvent(new Event('change'));
             }
-        });
+        }
+
+        // Setup drag and drop for all inputs
+        setupDragAndDrop('videoInput');
+        setupDragAndDrop('imageInput');
+        setupDragAndDrop('audioInput');
     </script>
 </body>
 </html>
