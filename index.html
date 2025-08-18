@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shubham Video Editor</title>
-    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.4/dist/ffmpeg.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
     <script src="https://unpkg.com/wavesurfer.js@6.6.3/dist/wavesurfer.min.js"></script>
     <script src="https://unpkg.com/wavesurfer.js@6.6.3/dist/plugin/wavesurfer.regions.min.js"></script>
     <style>
@@ -642,12 +643,30 @@
         let currentMode = 'video';
         let selectedRegion = { start: 0, end: 10 };
 
-        // Initialize FFmpeg
+        // Initialize FFmpeg with proper error handling
         async function initFFmpeg() {
             if (!ffmpeg) {
-                const { FFmpeg } = FFmpegWASM;
-                ffmpeg = new FFmpeg();
-                await ffmpeg.load();
+                try {
+                    const { FFmpeg } = FFmpegWASM;
+                    ffmpeg = new FFmpeg();
+                    
+                    ffmpeg.on('log', ({ message }) => {
+                        console.log(message);
+                    });
+                    
+                    ffmpeg.on('progress', ({ progress }) => {
+                        if (progress > 0) {
+                            console.log(`Progress: ${Math.round(progress * 100)}%`);
+                        }
+                    });
+                    
+                    await ffmpeg.load({
+                        coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js'
+                    });
+                } catch (error) {
+                    console.error('Failed to load FFmpeg:', error);
+                    throw new Error('Failed to initialize video processing. Please refresh and try again.');
+                }
             }
         }
 
@@ -946,17 +965,14 @@
                 await initFFmpeg();
                 
                 // Write files to FFmpeg filesystem
-                const videoData = new Uint8Array(await videoFile.arrayBuffer());
-                const audioData = new Uint8Array(await audioFile.arrayBuffer());
-                
-                await ffmpeg.writeFile('input_video.mp4', videoData);
-                await ffmpeg.writeFile('input_audio.mp3', audioData);
+                await ffmpeg.writeFile('input_video.mp4', new Uint8Array(await videoFile.arrayBuffer()));
+                await ffmpeg.writeFile('input_audio.mp3', new Uint8Array(await audioFile.arrayBuffer()));
                 
                 // Trim audio based on selected region
                 await ffmpeg.exec([
                     '-i', 'input_audio.mp3',
-                    '-ss', selectedRegion.start.toString(),
-                    '-to', selectedRegion.end.toString(),
+                    '-ss', selectedRegion.start.toFixed(2),
+                    '-to', selectedRegion.end.toFixed(2),
                     '-c', 'copy',
                     'trimmed_audio.mp3'
                 ]);
@@ -1016,17 +1032,14 @@
                 await initFFmpeg();
                 
                 // Write files to FFmpeg filesystem
-                const imageData = new Uint8Array(await imageFile.arrayBuffer());
-                const audioData = new Uint8Array(await audioFile.arrayBuffer());
-                
-                await ffmpeg.writeFile('input_image.jpg', imageData);
-                await ffmpeg.writeFile('input_audio.mp3', audioData);
+                await ffmpeg.writeFile('input_image.jpg', new Uint8Array(await imageFile.arrayBuffer()));
+                await ffmpeg.writeFile('input_audio.mp3', new Uint8Array(await audioFile.arrayBuffer()));
                 
                 // Trim audio based on selected region
                 await ffmpeg.exec([
                     '-i', 'input_audio.mp3',
-                    '-ss', selectedRegion.start.toString(),
-                    '-to', selectedRegion.end.toString(),
+                    '-ss', selectedRegion.start.toFixed(2),
+                    '-to', selectedRegion.end.toFixed(2),
                     '-c', 'copy',
                     'trimmed_audio.mp3'
                 ]);
